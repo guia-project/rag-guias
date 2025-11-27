@@ -120,22 +120,6 @@ def fetch_ckan_resources():
         print(f"Error al llamar a la API de CKAN: {e}")
         return []
 
-def get_stored_version(client, document_id):
-    """Busca en ES la fecha de modificación de un documento ya indexado."""
-    try:
-        query = {
-            "query": { "term": { "document_id": document_id } },
-            "sort": { "modified_date": "desc" },    # Ordena por fecha
-            "_source": ["modified_date"],           # Obtenemos la fecha
-            "size": 1                               # Nos quedamos el más reciente
-        }
-        response = client.search(index=INDEX_NAME, body=query)
-        if response["hits"]["total"]["value"] > 0:
-            return response["hits"]["hits"][0]["_source"]["modified_date"]
-    except Exception as e:
-        pass
-    return None # Si no existe, devolvemos None
-
 def delete_document_chunks(client, document_id):
     """Elimina todos los chunks antiguos de un documento antes de re-indexar."""
     print(f"-> Eliminando versiones antiguas de: {document_id}")
@@ -230,19 +214,6 @@ def run_sync_job(client, model):
         if not doc_id or not ckan_mod_date or resource.get('mimetype') != 'application/pdf':
             print("-> Omitido (recurso sin ID, fecha, o no es PDF).")
             continue 
-
-        stored_mod_date = get_stored_version(client, doc_id)    # Busca sello de versión del doc
-        
-        if not stored_mod_date:                                 # No tiene sello de versión         -> Es nuevo
-            print(f"-> Documento NUEVO encontrado.")
-            process_and_index_document(client, model, resource)
-        elif ckan_mod_date > stored_mod_date:                   # Tiene sello de versión antiguo    -> Lo reemplazamos
-            print(f"-> Documento ACTUALIZADO encontrado (CKAN: {ckan_mod_date} > Local: {stored_mod_date}).")
-            delete_document_chunks(client, doc_id)
-            process_and_index_document(client, model, resource)
-        else:                                                   # Tiene el mismo sello de versión   -> Lo omitimos pues ya está actualizado
-            print(f"-> Documento ya está actualizado. Omitiendo.")
-            pass
     
     print("\n--- [ Trabajo de sincronización finalizado ] ---")
 
