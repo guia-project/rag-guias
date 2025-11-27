@@ -119,6 +119,20 @@ def fetch_ckan_resources():
     except requests.RequestException as e:
         print(f"Error al llamar a la API de CKAN: {e}")
         return []
+    
+def document_exists(client, document_id):
+    """
+    NUEVA FUNCIÓN: Comprueba si un documento ya está en la base de datos.
+    Solo mira si existe el ID, ignora fechas o versiones.
+    """
+    try:
+        count = client.count(index=INDEX_NAME, body={
+            "query": { "term": { "document_id": document_id } }
+        })
+        return count["count"] > 0
+    except Exception:
+        # Si el índice no existe o falla, asumimos que no existe
+        return False
 
 def process_and_index_document(client, model, resource):
     """
@@ -203,7 +217,15 @@ def run_sync_job(client, model):
         
         if not doc_id or not ckan_mod_date or resource.get('mimetype') != 'application/pdf':
             print("-> Omitido (recurso sin ID, fecha, o no es PDF).")
-            continue 
+            continue
+        
+        print(f"\nRevisando {i+1}/{total}: {doc_name}")
+
+        if document_exists(client, doc_id):
+            print(f"-> YA EXISTE.")
+        else:
+            print(f"-> NUEVO DOCUMENTO DETECTADO. Procesando...")
+            process_and_index_document(client, model, resource)
     
     print("\n--- [ Trabajo de sincronización finalizado ] ---")
 
