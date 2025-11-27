@@ -120,16 +120,6 @@ def fetch_ckan_resources():
         print(f"Error al llamar a la API de CKAN: {e}")
         return []
 
-def delete_document_chunks(client, document_id):
-    """Elimina todos los chunks antiguos de un documento antes de re-indexar."""
-    print(f"-> Eliminando versiones antiguas de: {document_id}")
-    try:
-        query = { "query": { "term": { "document_id": document_id } } }
-        # delete_by_query es la forma de borrar documentos que coincidan con una búsqueda
-        client.delete_by_query(index=INDEX_NAME, body=query, refresh=True)
-    except Exception as e:
-        print(f"Error eliminando chunks antiguos: {e}")
-
 def process_and_index_document(client, model, resource):
     """
     Descarga, procesa (PDF->MD->Chunks->Vectores) e indexa
