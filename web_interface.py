@@ -18,30 +18,43 @@ st.set_page_config(
 )
 
 st.title("🎓 Chatbot Guías Docentes UPM")
-st.markdown(f"**Motor activo:** `{CONFIG['active_llm']}`")
+
+with st.sidebar:
+    st.header("Configuración")
+
+    available_models = list(CONFIG["llm_options"].keys())
+
+    selected_llm = st.selectbox(
+        "Selecciona el modelo LLM:",
+        options=available_models,
+        index=available_models.index(CONFIG["active_llm"])
+    )
 
 # 2. CARGA DE RECURSOS (CACHÉ)
 # @st.cache_resource para que se ejecute SOLO UNA VEZ
 
 @st.cache_resource
-def initialize_system():
-    """Inicializa la conexión a Elastic, el modelo de Embeddings y el LLM."""
-    print("--- INICIALIZANDO SISTEMA WEB ---")
+def load_infrastructure():
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
-    
+    return es_client, embedding_model
+
+es_client, embedding_model = load_infrastructure()
+
+# Carga del LLM (Dinámica según el selector)
+def load_llm_engine(provider_name):
     try:
-        llm_engine = get_llm_provider()
+        return get_llm_provider(force_provider_name=provider_name)
     except Exception as e:
-        st.error(f"Error al cargar el LLM: {e}")
-        return None, None, None
+        st.error(f"Error al cargar {provider_name}: {e}")
+        return None
 
-    return es_client, embedding_model, llm_engine
+# Cargamos el motor seleccionado en la barra lateral
+llm_engine = load_llm_engine(selected_llm)
 
-es_client, embedding_model, llm_engine = initialize_system()
-
+# Verificación de salud
 if not es_client or not embedding_model or not llm_engine:
-    st.error("Error crítico: No se pudieron cargar los componentes del RAG. Revisa la terminal.")
+    st.error("Error crítico de conexión. Revisa la terminal.")
     st.stop()
 
 # 3. GESTIÓN DEL HISTORIAL (SESSION STATE)

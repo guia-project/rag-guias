@@ -2,14 +2,14 @@ import os
 import json
 import requests
 import warnings
-from abc import ABC, abstractmethod 
+from abc import ABC, abstractmethod  # Importamos las herramientas para clases abstractas
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
 from google import genai
 from google.genai import types
 from groq import Groq
 
-#    CONFIGURACION GLOBAL
+#   Configuración Global
 
 ELASTIC_URL = "http://localhost:9200"
 INDEX_NAME = "guias_docentes"
@@ -106,15 +106,20 @@ class OllamaProvider(LLMProvider):
         except Exception as e:
             return f"ERROR Ollama: {e}"
 
-#   FACTORY 
+#   FACTORY (La Fábrica de Objetos) 
 
-def get_llm_provider() -> LLMProvider:
+def get_llm_provider(force_provider_name=None) -> LLMProvider:
     """
     Lee la configuración y devuelve la instancia de la clase correcta.
+    Si se le pasa un argumento usa ese, sino usa el del config.json
     """
-    active_llm = CONFIG["active_llm"]
-    options = CONFIG["llm_options"].get(active_llm)
     
+    if force_provider_name:
+        active_llm = force_provider_name
+    else:
+        active_llm = CONFIG["active_llm"]
+    options = CONFIG["llm_options"].get(active_llm)
+
     if not options:
         raise ValueError(f"Configuración no encontrada para: {active_llm}")
 
@@ -195,10 +200,11 @@ def build_rag_prompt(query, context_chunks):
     RESPUESTA (basada solo en el contexto):
     """
 
-#   BUCLE DEL CHATBOT
+#   BUCLE PRINCIPAL
 
 if __name__ == "__main__":
     
+    # 1. Inicialización
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
     
