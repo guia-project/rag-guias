@@ -19,16 +19,20 @@ st.set_page_config(
 
 st.title("🎓 Chatbot Guías Docentes UPM")
 
+
+#Posible seleccion del LLM desde la pagina
 with st.sidebar:
     st.header("Configuración")
 
     available_models = list(CONFIG["llm_options"].keys())
 
+
     selected_llm = st.selectbox(
-        "Selecciona el modelo LLM:",
-        options=available_models,
-        index=available_models.index(CONFIG["active_llm"])
-    )
+       "Selecciona el modelo LLM:",
+       options=available_models,
+       index=available_models.index(CONFIG["active_llm"])
+)
+
 
 # 2. CARGA DE RECURSOS (CACHÉ)
 # @st.cache_resource para que se ejecute SOLO UNA VEZ
@@ -49,8 +53,8 @@ def load_llm_engine(provider_name):
         st.error(f"Error al cargar {provider_name}: {e}")
         return None
 
-# Cargamos el motor seleccionado en la barra lateral
-llm_engine = load_llm_engine(selected_llm)
+# Cargamos el motor LLM
+llm_engine = load_llm_engine(CONFIG["active_llm"])
 
 # Verificación de salud
 if not es_client or not embedding_model or not llm_engine:
@@ -95,7 +99,7 @@ if prompt := st.chat_input("Pregunta sobre una asignatura..."):
                     es_client, 
                     embedding_model, 
                     prompt, 
-                    top_k=5
+                    top_k=5 # Modificable para ajustar la calidad de las respuestas
                 )
                 
                 if not chunks:

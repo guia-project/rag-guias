@@ -11,9 +11,6 @@ from groq import Groq
 
 #   Configuración Global
 
-ELASTIC_URL = "http://localhost:9200"
-INDEX_NAME = "guias_docentes"
-MODEL_NAME = 'all-MiniLM-L6-v2'
 
 try:
     with open('config.json', 'r') as f:
@@ -21,6 +18,9 @@ try:
 except FileNotFoundError:
     print("ERROR: No se encuentra el archivo config.json.")
     exit()
+
+INDEX_NAME = CONFIG["elastic"]["index_name"]
+MODEL_NAME = CONFIG["embeddings"]["model_name"]
 
 #   DEFINICIÓN DE LA INTERFAZ ABSTRACTA
 
@@ -144,11 +144,13 @@ def get_llm_provider(force_provider_name=None) -> LLMProvider:
 #   Conexión con la base de datos
 def connect_to_elastic():
     print(f"Conectando a Elasticsearch en {ELASTIC_URL}...")
+    conf = CONFIG["elastic"]
     try:
         warnings.filterwarnings("ignore", "Connecting to",)
         client = Elasticsearch(
-            [{"host": "localhost", "port": 9200, "scheme": "http"}],
-            verify_certs=False, ssl_show_warn=False, request_timeout=10 
+            [{"host": conf["host"], "port": conf["port"], "scheme": conf["scheme"]}],
+            verify_certs=False, 
+            request_timeout=10 
         )
         if client.info():
             print("¡Conexión con Elasticsearch exitosa!")

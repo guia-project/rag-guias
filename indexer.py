@@ -3,6 +3,7 @@ import requests                             # Para llamar a la API de CKAN
 import schedule                             # Para el trabajo periódico
 import time
 import io                                   # Para manejar los bytes del PDF descargado
+import json                                 # Para leer la configuración
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk      # Para inserción en lote
 from sentence_transformers import SentenceTransformer 
@@ -11,27 +12,27 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 #    Configuración Global
 
-# Configuración de Elasticsearch
-ELASTIC_URL = "http://localhost:9200"
-INDEX_NAME = "guias_docentes"   
+try:
+    with open('config.json', 'r') as f:
+        CONFIG = json.load(f)
+except FileNotFoundError:
+    print("ERROR: No se encuentra el archivo config.json.")
+    exit()
 
-# Configuración del Modelo de Embedding (debe coincidir con el mapping)
-MODEL_NAME = 'all-MiniLM-L6-v2'
-EMBEDDING_DIM = 384
-
-# Configuración de la API de CKAN (la fuente de datos)
-CKAN_API_URL = "https://portal.guia.linkeddata.es/api/3/action/resource_search"
-
+ELASTIC_CONFIG = CONFIG["elastic"]
+CKAN_API_URL = CONFIG["ckan"]["api_url"]
+MODEL_NAME = CONFIG["embeddings"]["model_name"]
+EMBEDDING_DIM = CONFIG["embeddings"]["dim"]
+INDEX_NAME = ELASTIC_CONFIG["index_name"]
 #     Funciones de Elasticsearch
 
 def connect_to_elastic():
     """Se conecta a Elasticsearch y devuelve el cliente."""
-    print(f"Conectando a Elasticsearch en {ELASTIC_URL}...")
+    print(f"Conectando a Elasticsearch...")
     try:
         client = Elasticsearch(
-            [{"host": "localhost", "port": 9200, "scheme": "http"}],
+            [{"host": ELASTIC_CONFIG["host"], "port": ELASTIC_CONFIG["port"], "scheme": ELASTIC_CONFIG["scheme"]}],
             verify_certs=False,
-            ssl_show_warn=False,
             request_timeout=5 
         )
         info = client.info()
