@@ -1,6 +1,14 @@
-import streamlit as st
-import time
+"""
+Módulo de Interfaz Web para el Asistente de Guías Docentes de la UPM.
 
+Este script utiliza Streamlit para proporcionar una interfaz de chat amigable
+que permite a los usuarios consultar información sobre asignaturas. Implementa
+estrategias de caché para optimizar la carga de modelos y la conexión a bases de datos.
+"""
+# Librerías
+import streamlit as st
+
+# Importamos funciones y clases desde app.py para mantener la lógica de negocio separada de la interfaz.
 from app import (
     connect_to_elastic, 
     load_embedding_model, 
@@ -10,18 +18,27 @@ from app import (
     CONFIG
 )
 
-# 1. CONFIGURACIÓN DE LA PÁGINA
+#####################################
+##  1. CONFIGURACIÓN DE LA PÁGINA  ##
+#####################################
+
+# st.set_page_config para definir el título, icono y diseño de la página.
 st.set_page_config(
     page_title="Asistente Guías Docentes",
     page_icon="🎓",
     layout="centered"
 )
-
+# st.title para mostrar un título llamativo en la parte superior de la página.
 st.title("🎓 Chatbot Guías Docentes UPM")
 
 
-#Posible seleccion del LLM desde la pagina
 with st.sidebar:
+    """
+    Configuración de la barra lateral.
+    
+    Permite al usuario seleccionar dinámicamente el proveedor de LLM 
+    basándose en las opciones disponibles en el archivo de configuración.
+    """
     st.header("Configuración")
 
     available_models = list(CONFIG["llm_options"].keys())
@@ -33,62 +50,97 @@ with st.sidebar:
        index=available_models.index(CONFIG["active_llm"])
 )
 
-
-# 2. CARGA DE RECURSOS (CACHÉ)
-# @st.cache_resource para que se ejecute SOLO UNA VEZ
+##################################
+## 2. CARGA DE RECURSOS (CACHÉ) ##
+##################################
 
 @st.cache_resource
 def load_infrastructure():
+    """
+    Inicializa y cachea la infraestructura base.
+    
+    Establece la conexión con Elasticsearch y carga el modelo de embeddings
+    en memoria para evitar recargas costosas en cada interacción de Streamlit.
+
+    Returns:
+        tuple: (es_client, embedding_model) donde es_client es la instancia de 
+               Elasticsearch y embedding_model es el modelo SentenceTransformer.
+    """
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
     return es_client, embedding_model
 
-es_client, embedding_model = load_infrastructure()
 
-# Carga del LLM (Dinámica según el selector)
+@st.cache_resource
 def load_llm_engine(provider_name):
+    """
+    Carga y cachea el motor del Modelo de Lenguaje (LLM).
+    
+    Utiliza el patrón Factory para instanciar el proveedor correcto (Gemini, Groq, etc.)
+    y mantiene la instancia en caché para agilizar la generación de respuestas.
+
+    Args:
+        provider_name (str): Nombre del proveedor de LLM (ej. 'ollama', 'groq').
+
+    Returns:
+        LLMProvider: Una instancia de la clase proveedora de LLM configurada.
+        None: Si ocurre un error durante la inicialización.
+    """
     try:
         return get_llm_provider(force_provider_name=provider_name)
     except Exception as e:
         st.error(f"Error al cargar {provider_name}: {e}")
         return None
 
-# Cargamos el motor LLM
+# Inicialización de recursos globales
+es_client, embedding_model = load_infrastructure()
 llm_engine = load_llm_engine(CONFIG["active_llm"])
 
-# Verificación de salud
+# Verificación de integridad del sistema
 if not es_client or not embedding_model or not llm_engine:
     st.error("Error crítico de conexión. Revisa la terminal.")
     st.stop()
-
-# 3. GESTIÓN DEL HISTORIAL (SESSION STATE)
-# Streamlit se reinicia con cada interacción, con 'session_state' para recordar la conversación.
+##############################################
+## 3. GESTIÓN DEL HISTORIAL (SESSION STATE) ##
+##############################################
 
 if "messages" not in st.session_state:
+    """
+    Inicializa el historial de conversación en el estado de la sesión
+    si es la primera vez que se carga la aplicación.
+    """
     st.session_state.messages = []
 
-# Mostrar mensajes anteriores al recargar la página
+# Renderizamos el historial de mensajes almacenado en la sesión para mostrar la conversación previa.
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-        # Si el mensaje tenía fuentes guardadas, las mostramos
         if "sources" in message:
             with st.expander("Fuentes consultadas"):
                 for source in message["sources"]:
                     st.markdown(f"- [{source}]({source})")
 
-# 4. LÓGICA DEL CHAT
+########################
+## 4. LÓGICA DEL CHAT ##
+########################
 
 if prompt := st.chat_input("Pregunta sobre una asignatura..."):
+    """
+    Bucle principal de procesamiento de preguntas (Pipeline RAG).
     
-    # Mostrar mensaje del usuario
+    1. Captura la entrada del usuario.
+    2. Recupera fragmentos relevantes (Retrieval) de Elasticsearch.
+    3. Construye el prompt con contexto.
+    4. Genera la respuesta definitiva (Generation) a través del LLM.
+    5. Actualiza el historial de la sesión.
+    """
+    # Muestra mensaje del usuario.
     with st.chat_message("user"):
         st.markdown(prompt)
     
-    # Guardar en historial
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Generar respuesta del asistente
+    # Genera respuesta del asistente.
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         
@@ -99,7 +151,7 @@ if prompt := st.chat_input("Pregunta sobre una asignatura..."):
                     es_client, 
                     embedding_model, 
                     prompt, 
-                    top_k=5 # Modificable para ajustar la calidad de las respuestas
+                    top_k=5 
                 )
                 
                 if not chunks:
@@ -108,20 +160,18 @@ if prompt := st.chat_input("Pregunta sobre una asignatura..."):
                 else:
                     # 2. Construcción del Prompt
                     rag_prompt = build_rag_prompt(prompt, chunks)
-                    
                     # 3. Generación (Generate)
                     full_response = llm_engine.generate(rag_prompt)
 
-                # Mostrar respuesta
+                # Renderizar la respuesta del asistente y fuentes.
                 message_placeholder.markdown(full_response)
                 
-                # Mostrar fuentes si existen
                 if sources:
                     with st.expander("Fuentes consultadas"):
                         for url in sources:
                             st.markdown(f"- [{url}]({url})")
 
-                # Guardar respuesta y fuentes en historial
+                # Actualizar el historial de la sesión con la respuesta del asistente y las fuentes.
                 st.session_state.messages.append({
                     "role": "assistant", 
                     "content": full_response,
