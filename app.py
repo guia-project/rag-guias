@@ -143,7 +143,7 @@ def get_llm_provider(force_provider_name=None) -> LLMProvider:
 
 #   Conexión con la base de datos
 def connect_to_elastic():
-    print(f"Conectando a Elasticsearch en {ELASTIC_URL}...")
+    print(f"Conectando a Elasticsearch...")
     conf = CONFIG["elastic"]
     try:
         warnings.filterwarnings("ignore", "Connecting to",)

@@ -103,23 +103,37 @@ def get_chunks_from_markdown(markdown_content):
 
 def fetch_ckan_resources():
     """Obtiene la lista de todos los recursos PDF de la API."""
-    params = {"query": "mimetype:application/pdf", "limit": 1000} 
+    all_resources = []
+    limit = 500
+    offset = 0
     print(f"Llamando a la API de CKAN: {CKAN_API_URL}")
     try:
-        response = requests.get(CKAN_API_URL, params=params)
-        response.raise_for_status()
-        data = response.json()
-        
-        if data.get("success"):
+        while True:
+            params = {
+                "query": "mimetype:application/pdf",
+                "limit": limit,
+                "offset": offset
+            }
+            response = requests.get(CKAN_API_URL, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            if not data.get("success"):
+                break
+
             results = data["result"]["results"]
-            print(f"CKAN reporta {len(results)} recursos PDF.")
-            return results
-        else:
-            print(f"La API de CKAN devolvió un error: {data.get('error')}")
-            return []
-    except requests.RequestException as e:
-        print(f"Error al llamar a la API de CKAN: {e}")
-        return []
+            if not results:
+                break
+            all_resources.extend(results)
+            print(f"-> Recuperados {len(all_resources)} recursos...")
+            
+            offset += limit
+        print(f"Total recursos PDF obtenidos hasta ahora: {len(all_resources)}")
+        return all_resources
+    except requests.RequestException as e:    
+        print(f"La API de CKAN devolvió un error: {data.get('error')}")
+        return all_resources
+
     
 def document_exists(client, document_id):
     """
