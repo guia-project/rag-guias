@@ -94,7 +94,7 @@ def load_llm_engine(provider_name):
 
 # Inicialización de recursos globales
 es_client, embedding_model = load_infrastructure()
-llm_engine = load_llm_engine(CONFIG["active_llm"])
+llm_engine = load_llm_engine(selected_llm)
 
 # Verificación de integridad del sistema
 if not es_client or not embedding_model or not llm_engine:
