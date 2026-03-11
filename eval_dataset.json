@@ -1,0 +1,82 @@
+[
+  {
+    "pregunta": "¿Cuál es la capital de España?",
+    "referencia": "Lo siento, no he encontrado información sobre la capital de España en las guías docentes proporcionadas."
+  },
+  {
+    "pregunta": "¿Cuál es el objetivo de la asignatura Calidad del Software?",
+    "referencia": "Presentar técnicas y mediciones de calidad, modelos y procesos para la gestión de la calidad en el ámbito de la ingeniería del software."
+  },
+  {
+    "pregunta": "¿Qué temas se estudian en el bloque de Análisis de Software de Fundamentos de Ingeniería del Software?",
+    "referencia": "Introducción al análisis, modelado estructural mediante diagramas de clases, modelado de comportamiento con diagramas de estados, actividad y secuencia, y trazabilidad de requisitos a análisis."
+  },
+  {
+    "pregunta": "¿Cómo se calcula la nota final en Fundamentos de Economía y Empresa mediante evaluación progresiva?",
+    "referencia": "La calificación final es la suma ponderada de: prácticas individuales (10%), entrega y presentación del Trabajo Grupal (15%) y una prueba global (75%)."
+  },
+  {
+    "pregunta": "¿Cuál es la fórmula para obtener la nota de teoría (ET) en Programación Orientada a Objetos?",
+    "referencia": "ET = ET1 * 0.40 + ET2 * 0.60, donde ET1 es el examen intermedio y ET2 es el examen final de la convocatoria ordinaria."
+  },
+  {
+    "pregunta": "¿Qué capacidad pretende dotar al alumno la asignatura Contaminación de Suelos y Aguas Subterráneas?",
+    "referencia": "Capacidad de detectar y diagnosticar problemas de afección a los suelos y las aguas subterráneas, así como diseñar y supervisar las actuaciones para evaluar su alcance e implicaciones."
+  },
+  {
+    "pregunta": "¿Cuáles son las asignaturas previas recomendadas para cursar Calidad del Software?",
+    "referencia": "Se recomienda haber cursado previamente Fundamentos de Ingeniería del Software."
+  },
+  {
+    "pregunta": "¿Qué condiciones debe cumplir un estudiante para aprobar Fundamentos de Ingeniería del Software en evaluación ordinaria?",
+    "referencia": "La nota del examen final debe ser igual o mayor a 4, y la nota de cada bloque (teoría y práctica) así como la nota final deben ser iguales o mayores a 5."
+  },
+  {
+    "pregunta": "¿Qué temas de Macroeconomía se incluyen en Fundamentos de Economía y Empresa?",
+    "referencia": "Concepto de macroeconomía, variables macroeconómicas, instrumentos de política macroeconómica, oferta y demanda agregadas, y Renta Nacional y otras macromagnitudes."
+  },
+  {
+    "pregunta": "¿Qué porcentaje de la nota final representa la evaluación de prácticas en Programación Orientada a Objetos?",
+    "referencia": "La evaluación de prácticas representa el 70% de la nota final de la asignatura."
+  },
+  {
+    "pregunta": "¿Cuál es el temario de la asignatura Contaminación de Suelos y Aguas Subterráneas?",
+    "referencia": "Marco legal y técnico, legislación de suelos, partición de contaminantes, flujo de aguas subterráneas, transporte de contaminantes, fases libres no acuosas, diseño de muestreo, perforación, muestreo de campo y control de calidad."
+  },
+  {
+    "pregunta": "¿Cuáles son los dos escenarios de evaluación global en Calidad del Software?",
+    "referencia": "Escenario 1 para estudiantes que superaron el 70% de las actividades prácticas y Escenario 2 para aquellos que no alcanzaron ese porcentaje."
+  },
+  {
+    "pregunta": "¿Qué bibliografía se recomienda para el Lenguaje Unificado de Modelado (UML) en Fundamentos de Ingeniería del Software?",
+    "referencia": "El libro de Booch, Rumbaugh y Jacobson 'El Lenguaje Unificado de Modelado UML' y el sitio web oficial de UML del Object Management Group."
+  },
+  {
+    "pregunta": "¿En qué consiste la evaluación extraordinaria de Fundamentos de Economía y Empresa para alumnos sin trabajo grupal?",
+    "referencia": "Consta de una prueba global con contenidos teórico-prácticos (90%) y un proyecto individual audiovisual sobre un caso empresarial (10%)."
+  },
+  {
+    "pregunta": "¿Qué normativa especial se aplica a los alumnos Erasmus OUT en Calidad del Software para la defensa del trabajo?",
+    "referencia": "Se permite realizar la defensa oral del trabajo final por medios telemáticos, siendo esta la única causa que justifica la defensa virtual."
+  },
+  {
+    "pregunta": "¿Con qué Objetivos de Desarrollo Sostenible (ODS) se relaciona la asignatura Contaminación de Suelos y Aguas Subterráneas?",
+    "referencia": "Se relaciona con el ODS 3 (Salud y Bienestar) y el ODS 6 (Agua Limpia y Saneamiento)."
+  },
+  {
+    "pregunta": "¿Qué temas de diseño se ven en el temario de Programación Orientada a Objetos?",
+    "referencia": "Principios de diseño, patrones de diseño, metodologías de diseño y diseño orientado a objetos avanzado."
+  },
+  {
+    "pregunta": "¿Qué actividades opcionales existen en Fundamentos de Ingeniería del Software para sumar puntos extra?",
+    "referencia": "Actividades presenciales como test o encuestas que suman 0,2 décimas adicionales sobre la nota de teoría y 0,2 sobre la nota de prácticas."
+  },
+  {
+    "pregunta": "¿Cuál es el resultado de aprendizaje RA7 en Fundamentos de Economía y Empresa?",
+    "referencia": "Comprende y es capaz de interpretar las cuentas anuales de una empresa."
+  },
+  {
+    "pregunta": "¿Qué subtemas se tratan en el bloque de Técnicas de la Calidad en Calidad del Software?",
+    "referencia": "Técnicas básicas, técnicas estadísticas y técnicas avanzadas."
+  }
+]
