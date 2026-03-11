@@ -6,7 +6,7 @@ Este script actúa como el núcleo del sistema, gestionando la comunicación
 entre la base de datos vectorial (Elasticsearch), el modelo de embeddings 
 y los diferentes proveedores de Modelos de Lenguaje (LLM).
 """
-
+# Librerías
 import json
 import requests
 import warnings

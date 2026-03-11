@@ -37,18 +37,24 @@ with st.sidebar:
     Configuración de la barra lateral.
     
     Permite al usuario seleccionar dinámicamente el proveedor de LLM 
-    basándose en las opciones disponibles en el archivo de configuración.
+    basándose en las opciones disponibles en el archivo de configuración,
+    siempre que la variable de visibilidad esté activa.
     """
     st.header("Configuración")
 
+
+    show_llm_selector = CONFIG.get("show_llm_selector")
     available_models = list(CONFIG["llm_options"].keys())
 
+    if show_llm_selector:
+        selected_llm = st.selectbox(
+            "Selecciona el modelo LLM:",
+            options=available_models,
+            index=available_models.index(CONFIG["active_llm"]))
+    else:
+        selected_llm = CONFIG["active_llm"]
+        st.info(f"Modelo activo: {selected_llm}")
 
-    selected_llm = st.selectbox(
-       "Selecciona el modelo LLM:",
-       options=available_models,
-       index=available_models.index(CONFIG["active_llm"])
-)
 
 ##################################
 ## 2. CARGA DE RECURSOS (CACHÉ) ##
