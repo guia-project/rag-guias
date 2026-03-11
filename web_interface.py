@@ -1,10 +1,9 @@
-"""
-Módulo de Interfaz Web para el Asistente de Guías Docentes de la UPM.
+# Módulo de Interfaz Web para el Asistente de Guías Docentes de la UPM.
+# 
+# Este script utiliza Streamlit para proporcionar una interfaz de chat amigable
+# que permite a los usuarios consultar información sobre asignaturas. Implementa
+# estrategias de caché para optimizar la carga de modelos y la conexión a bases de datos.
 
-Este script utiliza Streamlit para proporcionar una interfaz de chat amigable
-que permite a los usuarios consultar información sobre asignaturas. Implementa
-estrategias de caché para optimizar la carga de modelos y la conexión a bases de datos.
-"""
 # Librerías
 import streamlit as st
 
@@ -31,19 +30,16 @@ st.set_page_config(
 # st.title para mostrar un título llamativo en la parte superior de la página.
 st.title("🎓 Chatbot Guías Docentes UPM")
 
-
+# Configuración de la barra lateral.    
+# Permite al usuario seleccionar dinámicamente el proveedor de LLM 
+# basándose en las opciones disponibles en el archivo de configuración,
+# siempre que la variable de visibilidad esté activa.
 with st.sidebar:
-    """
-    Configuración de la barra lateral.
-    
-    Permite al usuario seleccionar dinámicamente el proveedor de LLM 
-    basándose en las opciones disponibles en el archivo de configuración,
-    siempre que la variable de visibilidad esté activa.
-    """
     st.header("Configuración")
 
 
     show_llm_selector = CONFIG.get("show_llm_selector")
+    
     available_models = list(CONFIG["llm_options"].keys())
 
     if show_llm_selector:
@@ -62,16 +58,14 @@ with st.sidebar:
 
 @st.cache_resource
 def load_infrastructure():
-    """
-    Inicializa y cachea la infraestructura base.
-    
-    Establece la conexión con Elasticsearch y carga el modelo de embeddings
-    en memoria para evitar recargas costosas en cada interacción de Streamlit.
-
-    Returns:
-        tuple: (es_client, embedding_model) donde es_client es la instancia de 
-               Elasticsearch y embedding_model es el modelo SentenceTransformer.
-    """
+    # Inicializa y cachea la infraestructura base.
+    # 
+    # Establece la conexión con Elasticsearch y carga el modelo de embeddings
+    # en memoria para evitar recargas costosas en cada interacción de Streamlit.
+    # 
+    # Returns:
+    #     tuple: (es_client, embedding_model) donde es_client es la instancia de 
+    #            Elasticsearch y embedding_model es el modelo SentenceTransformer.
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
     return es_client, embedding_model
@@ -79,19 +73,17 @@ def load_infrastructure():
 
 @st.cache_resource
 def load_llm_engine(provider_name):
-    """
-    Carga y cachea el motor del Modelo de Lenguaje (LLM).
-    
-    Utiliza el patrón Factory para instanciar el proveedor correcto (Gemini, Groq, etc.)
-    y mantiene la instancia en caché para agilizar la generación de respuestas.
-
-    Args:
-        provider_name (str): Nombre del proveedor de LLM (ej. 'ollama', 'groq').
-
-    Returns:
-        LLMProvider: Una instancia de la clase proveedora de LLM configurada.
-        None: Si ocurre un error durante la inicialización.
-    """
+    # Carga y cachea el motor del Modelo de Lenguaje (LLM).
+    # 
+    # Utiliza el patrón Factory para instanciar el proveedor correcto (Gemini, Groq, etc.)
+    # y mantiene la instancia en caché para agilizar la generación de respuestas.
+    # 
+    # Args:
+    #     provider_name (str): Nombre del proveedor de LLM (ej. 'ollama', 'groq').
+    # 
+    # Returns:
+    #     LLMProvider: Una instancia de la clase proveedora de LLM configurada.
+    #     None: Si ocurre un error durante la inicialización.
     try:
         return get_llm_provider(force_provider_name=provider_name)
     except Exception as e:
@@ -111,10 +103,8 @@ if not es_client or not embedding_model or not llm_engine:
 ##############################################
 
 if "messages" not in st.session_state:
-    """
-    Inicializa el historial de conversación en el estado de la sesión
-    si es la primera vez que se carga la aplicación.
-    """
+    # Inicializa el historial de conversación en el estado de la sesión
+    # si es la primera vez que se carga la aplicación.
     st.session_state.messages = []
 
 # Renderizamos el historial de mensajes almacenado en la sesión para mostrar la conversación previa.
@@ -131,15 +121,14 @@ for message in st.session_state.messages:
 ########################
 
 if prompt := st.chat_input("Pregunta sobre una asignatura..."):
-    """
-    Bucle principal de procesamiento de preguntas (Pipeline RAG).
+    # Bucle principal de procesamiento de preguntas (Pipeline RAG).
+    # 
+    # 1. Captura la entrada del usuario.
+    # 2. Recupera fragmentos relevantes (Retrieval) de Elasticsearch.
+    # 3. Construye el prompt con contexto.
+    # 4. Genera la respuesta definitiva (Generation) a través del LLM.
+    # 5. Actualiza el historial de la sesión.
     
-    1. Captura la entrada del usuario.
-    2. Recupera fragmentos relevantes (Retrieval) de Elasticsearch.
-    3. Construye el prompt con contexto.
-    4. Genera la respuesta definitiva (Generation) a través del LLM.
-    5. Actualiza el historial de la sesión.
-    """
     # Muestra mensaje del usuario.
     with st.chat_message("user"):
         st.markdown(prompt)

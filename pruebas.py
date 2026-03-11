@@ -7,8 +7,10 @@ de procesamiento de lenguaje natural (NLP): BLEU, METEOR y ROUGE.
 
 # Librerías
 import json
+import pandas as pd
+import numpy as np
 import evaluate
-from app import connect_to_elastic, load_embedding_model, get_llm_provider, search_retriever, build_rag_prompt
+from app import CONFIG, connect_to_elastic, load_embedding_model, get_llm_provider, search_retriever, build_rag_prompt
 
 ##########################
 ## 1. CARGA DE MÉTRICAS ##
@@ -17,6 +19,9 @@ from app import connect_to_elastic, load_embedding_model, get_llm_provider, sear
 bleu = evaluate.load("bleu")
 meteor = evaluate.load("meteor")
 rouge = evaluate.load("rouge")
+
+output_csv = CONFIG["eval"]["output_csv"]
+dataset_path = CONFIG["eval"]["dataset_path"]
 
 def run_quality_test(dataset_path):
     """
@@ -33,47 +38,63 @@ def run_quality_test(dataset_path):
     with open(dataset_path, 'r', encoding='utf-8') as f:
         dataset = json.load(f)
 
-    predictions = []
-    references = []
+    results_list = []
 
     print(f"Iniciando evaluación sobre {len(dataset)} preguntas...")
 
-    for item in dataset:
+    for i, item in enumerate(dataset):
         pregunta = item["pregunta"]
-        verdad_humana = item["referencia"]
+        referencia = item["referencia"]
         
         # Flujo RAG (Retrieval + Generation)
         chunks, _ = search_retriever(es_client, embed_model, pregunta, top_k=5)
         prompt = build_rag_prompt(pregunta, chunks)
         respuesta_ia = llm_engine.generate(prompt)
         
-        predictions.append(respuesta_ia)
-        references.append(verdad_humana)
-        print(f"Pregunta procesada: {pregunta[:50]}...")
+        # Cálculo de métricas individuales para esta pregunta
+        # (Usamos listas de un solo elemento para evaluar pregunta por pregunta)
+        score_bleu = bleu.compute(predictions=[respuesta_ia], references=[referencia])['bleu']
+        score_meteor = meteor.compute(predictions=[respuesta_ia], references=[referencia])['meteor']
+        score_rouge = rouge.compute(predictions=[respuesta_ia], references=[referencia])['rougeL']
+        
+        # Guardamos los datos de esta iteración
+        results_list.append({
+            "ID": i + 1,
+            "Pregunta": pregunta,
+            "Respuesta_IA": respuesta_ia,
+            "Referencia_Humana": referencia,
+            "BLEU": score_bleu,
+            "METEOR": score_meteor,
+            "ROUGE-L": score_rouge
+        })
+        
+        print(f"[{i+1}/{len(dataset)}] Procesada: {pregunta[:40]}...")
     
     ############################
     ## 2. CÁLCULO DE MÉTRICAS ##
     ############################
 
-    # BLEU: Mide precisión de n-gramas (común en traducción)
-    results_bleu = bleu.compute(predictions=predictions, references=references)
+    df = pd.DataFrame(results_list)
+    df.to_csv(output_csv, index=False, encoding='utf-8-sig')
     
-    # METEOR: Considera sinónimos y morfología (más alineado con el lenguaje humano)
-    results_meteor = meteor.compute(predictions=predictions, references=references)
-    
-    # ROUGE: Mide el 'recall' (cuánta información de la referencia está en la IA)
-    results_rouge = rouge.compute(predictions=predictions, references=references)
+    # Calculamos medias y desviaciones típicas
+    summary = {
+        "Métrica": ["BLEU", "METEOR", "ROUGE-L"],
+        "Media (μ)": [df["BLEU"].mean(), df["METEOR"].mean(), df["ROUGE-L"].mean()],
+        "Desv. Típica (σ)": [df["BLEU"].std(), df["METEOR"].std(), df["ROUGE-L"].std()]
+    }
+    df_summary = pd.DataFrame(summary)
 
     ###################
     ## 3. RESULTADOS ##
     ###################
 
-    print("\n" + "="*30)
+    print("\n" + "="*45)
     print("RESULTADOS DE EVALUACIÓN")
-    print("="*30)
-    print(f"BLEU Score: {results_bleu['bleu']:.4f}")
-    print(f"METEOR Score: {results_meteor['meteor']:.4f}")
-    print(f"ROUGE-L: {results_rouge['rougeL']:.4f}")
+    print("="*45)
+    print(df_summary.to_string(index=False))
+    print("="*45)
+    print(f"Fichero detallado guardado como: {output_csv}")
 
 if __name__ == "__main__":
-    run_quality_test("eval_dataset.json")
+    run_quality_test(dataset_path)

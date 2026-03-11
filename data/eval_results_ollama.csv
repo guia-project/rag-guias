@@ -1,0 +1,76 @@
+﻿ID,Pregunta,Respuesta_IA,Referencia_Humana,BLEU,METEOR,ROUGE-L
+1,¿Cuál es la capital de España?,"**Capítulo I. Marco de la planificación territorial**
+
+**Tema 1. Análisis y planificación territorial. La ordenación del Territorio.**
+
+**Conceptos.**
+
+* Análisis territorial
+* Planificación territorial
+* Ordenación del Territorio
+* Análisis de la sostenibilidad
+
+**Preguntas y respuestas**
+
+* **Preguntas:** ¿Qué es el análisis territorial? ¿Qué es la planificación territorial? ¿Qué es la ordenación del Territorio?
+
+* **Respuestas:**
+    * Análisis territorial: es el proceso de estudiar y comprender la estructura y funcionamiento de un territorio, incluyendo sus elementos físicos, sociales, económicos y ambientales.
+    * Planificación territorial: es el proceso de establecer objetivos y metas para el desarrollo futuro de un territorio, y de desarrollar planes y programas para alcanzar esos objetivos.
+    * Ordenación del Territorio: es el proceso de clasificar y ordenar los elementos del territorio en función de sus importancia y sus relaciones entre sí.","Lo siento, no he encontrado información sobre la capital de España en las guías docentes proporcionadas.",0.0,0.1032448377581121,0.04938271604938272
+2,¿Cuál es el objetivo de la asignatura Calidad del Software?,"El objetivo de la asignatura Calidad del Software es capacitar a los estudiantes en el desarrollo de software con un enfoque en la metodología, las herramientas y los conceptos clave de los lenguajes de programación C++ y el desarrollo de aplicaciones distribuidas en tiempo real.","Presentar técnicas y mediciones de calidad, modelos y procesos para la gestión de la calidad en el ámbito de la ingeniería del software.",0.0,0.275735294117647,0.2191780821917808
+3,¿Qué temas se estudian en el bloque de Análisis de Software de Fundamentos de Ingeniería del Software?,"Los temas que se estudian en el bloque de Análisis de Software de Fundamentos de Ingeniería del Software son:
+
+1. Modelado de requisitos
+2. Trazabilidad de requisitos a análisis
+3. Diseño de software","Introducción al análisis, modelado estructural mediante diagramas de clases, modelado de comportamiento con diagramas de estados, actividad y secuencia, y trazabilidad de requisitos a análisis.",0.07418182487612639,0.28939079871860446,0.3384615384615385
+4,¿Cómo se calcula la nota final en Fundamentos de Economía y Empresa mediante evaluación progresiva?,"La nota final en Fundamentos de Economía y Empresa mediante evaluación progresiva se calcula mediante la suma de los puntos de las dos pruebas de evaluación, la prueba de evaluación global y la nota de la práctica de estadística.","La calificación final es la suma ponderada de: prácticas individuales (10%), entrega y presentación del Trabajo Grupal (15%) y una prueba global (75%).",0.0,0.16853932584269665,0.22535211267605634
+5,¿Cuál es la fórmula para obtener la nota de teoría (ET) en Programación Orientada a Objetos?,"La fórmula para obtener la nota de teoría (ET) en Programación Orientada a Objetos es:
+
+**Nota Teoría = 0,9 · NPEI + 0,1 · NEAT**","ET = ET1 * 0.40 + ET2 * 0.60, donde ET1 es el examen intermedio y ET2 es el examen final de la convocatoria ordinaria.",0.0,0.14545454545454545,0.12
+6,¿Qué capacidad pretende dotar al alumno la asignatura Contaminación de Suelos y Aguas Subterráneas?,"El alumno pretende dotar al alumno la asignatura Contaminación de Suelos y Aguas Subterráneas con la capacidad de:
+
+1. Identificar y describir los principales procesos de la degradación del suelo.
+2. Proponer medidas de conservación y recuperación de los suelos degradados.
+3. Resolver problemas de aplicación de conceptos de la teoría.
+4. Elaborar informes y presentaciones sobre el estado del suelo.
+5. Participar en un trabajo en equipo para la gestión de suelos contaminados.","Capacidad de detectar y diagnosticar problemas de afección a los suelos y las aguas subterráneas, así como diseñar y supervisar las actuaciones para evaluar su alcance e implicaciones.",0.0,0.25076682316118937,0.15929203539823011
+7,¿Cuáles son las asignaturas previas recomendadas para cursar Calidad del Software?,Las asignaturas previas recomendadas para cursar Calidad del Software son no definidas en el plan de estudios.,Se recomienda haber cursado previamente Fundamentos de Ingeniería del Software.,0.0,0.26976495726495725,0.14285714285714285
+8,¿Qué condiciones debe cumplir un estudiante para aprobar Fundamentos de Ingeniería del Software en evaluación ordinaria?,Un estudiante debe alcanzar una nota mínima de 3 en las evaluaciones progresas para aprobar la asignatura en evaluación ordinaria.,"La nota del examen final debe ser igual o mayor a 4, y la nota de cada bloque (teoría y práctica) así como la nota final deben ser iguales o mayores a 5.",0.0,0.08474576271186442,0.14035087719298245
+9,¿Qué temas de Macroeconomía se incluyen en Fundamentos de Economía y Empresa?,"Los temas de Macroeconomía que se incluyen en Fundamentos de Economía y Empresa son:
+
+1. Concepto
+2. Variables macroeconómicas
+3. Los instrumentos de política macroeconómica
+4. Oferta y demanda agregadas
+5. Renta Nacional y otras macromagnitudes","Concepto de macroeconomía, variables macroeconómicas, instrumentos de política macroeconómica, oferta y demanda agregadas, y Renta Nacional y otras macromagnitudes.",0.17893757508901514,0.7107073643410854,0.6562499999999999
+10,¿Qué porcentaje de la nota final representa la evaluación de prácticas en Programación Orientada a Objetos?,El porcentaje de la nota final que representa la evaluación de prácticas en el Programación Orientado a Objetos es del 30%.,La evaluación de prácticas representa el 70% de la nota final de la asignatura.,0.170595737016168,0.5669910179640718,0.35000000000000003
+11,¿Cuál es el temario de la asignatura Contaminación de Suelos y Aguas Subterráneas?,El temario de la asignatura Contaminación de Suelos y Aguas Subterráneas es el tema 1: **Causas de la contaminación de suelos**.,"Marco legal y técnico, legislación de suelos, partición de contaminantes, flujo de aguas subterráneas, transporte de contaminantes, fases libres no acuosas, diseño de muestreo, perforación, muestreo de campo y control de calidad.",0.0,0.14746227709190673,0.2903225806451613
+12,¿Cuáles son los dos escenarios de evaluación global en Calidad del Software?,"Los dos escenarios de evaluación global en Calidad del Software son:
+
+1. **Prueba escrita** que abarca todos los contenidos del curso, incluyendo los conceptos adquiridos en laboratorio y trabajos.
+2. **Examen teórico** que abarca ambos bloques de la evaluación.",Escenario 1 para estudiantes que superaron el 70% de las actividades prácticas y Escenario 2 para aquellos que no alcanzaron ese porcentaje.,0.0,0.21708201386020473,0.15384615384615383
+13,¿Qué bibliografía se recomienda para el Lenguaje Unificado de Modelado (UML) en Fundamentos de Ingeniería del Software?,La bibliografía recomendada para el Lenguaje Unificado de Modelado (UML) en Fundamentos de Ingeniería del Software es la **Bibliografía** mencionada en el contexto.,"El libro de Booch, Rumbaugh y Jacobson 'El Lenguaje Unificado de Modelado UML' y el sitio web oficial de UML del Object Management Group.",0.09518930981816905,0.30347985347985346,0.32
+14,¿En qué consiste la evaluación extraordinaria de Fundamentos de Economía y Empresa para alumnos sin trabajo grupal?,"La evaluación extraordinaria de Fundamentos de Economía y Empresa para alumnos sin trabajo grupal consistirá en un examen teórico. En este examen, los alumnos deberán demostrar su conocimiento y dominio de los diversos contenidos desarrollados a lo largo del curso.",Consta de una prueba global con contenidos teórico-prácticos (90%) y un proyecto individual audiovisual sobre un caso empresarial (10%).,0.0,0.09025270758122743,0.12121212121212123
+15,¿Qué normativa especial se aplica a los alumnos Erasmus OUT en Calidad del Software para la defensa del trabajo?,"Los estudiantes Erasmus OUT deben cumplir con la normativa especial que establece el Centro de Evaluación de la Calidad (CEVAL) para la defensa del trabajo. 
+
+Según el contexto, la normativa especial establece que la defensa del trabajo debe ser realizada por los estudiantes en formato virtual, y que la calificación final será la suma de la parte teórica y de la parte práctica, ambas realizadas en el aula.","Se permite realizar la defensa oral del trabajo final por medios telemáticos, siendo esta la única causa que justifica la defensa virtual.",0.0,0.27105065170092923,0.1875
+16,¿Con qué Objetivos de Desarrollo Sostenible (ODS) se relaciona la asignatura Contaminación de Suelos y Aguas Subterráneas?,"La asignatura Contaminación de Suelos y Aguas Subterráneas se relaciona con los siguientes ODS:
+
+- ODS 2: Hambre cero.
+- ODS 6: Garantizar la disponibilidad de agua y el saneamiento para todos.",Se relaciona con el ODS 3 (Salud y Bienestar) y el ODS 6 (Agua Limpia y Saneamiento).,0.0,0.4029255319148936,0.3673469387755102
+17,¿Qué temas de diseño se ven en el temario de Programación Orientada a Objetos?,"Los temas de diseño que se ven en el temario de Programación Orientada a Objetos son:
+
+- Diseño de edificios y sistemas edificatorios de vivienda colectiva y de vivienda unifamiliar o de baja intensidad.
+- Diseño de edificios y sistemas edificatorios de vivienda en entornos urbano, pero que pueden ser también de muy diversas clases, caracteres, programas y tamaños.","Principios de diseño, patrones de diseño, metodologías de diseño y diseño orientado a objetos avanzado.",0.0,0.32504282917278515,0.24096385542168675
+18,¿Qué actividades opcionales existen en Fundamentos de Ingeniería del Software para sumar puntos extra?,"En Fundamentos de Ingeniería del Software, existen diversas actividades opcionales para sumar puntos extra, como:
+
+1. **Realizar análisis de casos de uso de requisitos de software.**
+2. **Desarrollar modelos de requisitos para diferentes tipos de sistemas.**
+3. **Implementar algoritmos para resolver problemas de análisis y diseño.**
+4. **Realizar pruebas y validación del software.**
+5. **Generar informes y documentaciones para proyectos de software.**","Actividades presenciales como test o encuestas que suman 0,2 décimas adicionales sobre la nota de teoría y 0,2 sobre la nota de prácticas.",0.0,0.0964630225080386,0.1263157894736842
+19,¿Cuál es el resultado de aprendizaje RA7 en Fundamentos de Economía y Empresa?,El resultado de aprendizaje RA7 en Fundamentos de Economía y Empresa no está incluido en el contexto.,Comprende y es capaz de interpretar las cuentas anuales de una empresa.,0.0,0.18518518518518523,0.2
+20,¿Qué subtemas se tratan en el bloque de Técnicas de la Calidad en Calidad del Software?,"El bloque de Técnicas de la Calidad en la asignatura Seminarios está dedicado a explorar las técnicas de evaluación estática y la medición de calidad del software. 
+
+En este bloque se analizarán las diferentes herramientas y métodos que se pueden utilizar para evaluar el estado de calidad del software, así como las métricas y el análisis estadístico que se pueden aplicar para determinar el nivel de calidad del software.","Técnicas básicas, técnicas estadísticas y técnicas avanzadas.",0.0,0.16339869281045755,0.1098901098901099
