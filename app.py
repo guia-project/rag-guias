@@ -1,16 +1,25 @@
-import os
+
+"""
+Módulo de Lógica de Negocio y Motor RAG (Retrieval-Augmented Generation).
+
+Este script actúa como el núcleo del sistema, gestionando la comunicación 
+entre la base de datos vectorial (Elasticsearch), el modelo de embeddings 
+y los diferentes proveedores de Modelos de Lenguaje (LLM).
+"""
+
 import json
 import requests
 import warnings
-from abc import ABC, abstractmethod  # Importamos las herramientas para clases abstractas
+from abc import ABC, abstractmethod
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
 from google import genai
 from google.genai import types
 from groq import Groq
 
-#   Configuración Global
-
+#############################
+## 0. CONFIGURACIÓN GLOBAL ##
+#############################
 
 try:
     with open('config.json', 'r') as f:
@@ -18,33 +27,68 @@ try:
 except FileNotFoundError:
     print("ERROR: No se encuentra el archivo config.json.")
     exit()
-
+# Variables de entorno extraídas de la configuración centralizada.
 INDEX_NAME = CONFIG["elastic"]["index_name"]
 MODEL_NAME = CONFIG["embeddings"]["model_name"]
 
-#   DEFINICIÓN DE LA INTERFAZ ABSTRACTA
+#######################################
+## 1. DEFINICIÓN INTERFAZ ABSTRACTA ##
+#######################################
 
 class LLMProvider(ABC):
+    """
+    Clase base abstracta para los proveedores de LLM.
+    
+    Define el contrato que todas las implementaciones deben seguir.
+    """
     @abstractmethod
     def generate(self, prompt: str) -> str:
+        """
+        Genera una respuesta basada en un prompt dado.
+        
+        Args:
+            prompt (str): El texto de entrada para el modelo.
+            
+        Returns:
+            str: La respuesta generada por el modelo.
+        """
         pass
 
-#   IMPLEMENTACIONES CONCRETAS DE LOS PROVEEDORES
+#########################################
+## 2. IMPLEMENTACIONES DE PROVEEDORES  ##
+#########################################
 
 class GeminiProvider(LLMProvider):
+    """Implementación del proveedor Google Gemini."""
+
     def __init__(self, api_key, model_name):
+        """
+        Constructor de la clase GeminiProvider.
+
+        Args:
+            api_key (str): Clave de API para autenticación en Google AI.
+            model_name (str): Identificador del modelo.
+        """
         self.api_key = api_key
         self.model_name = model_name
-        
+        self.client = genai.Client(api_key=self.api_key)
+
     def generate(self, prompt: str) -> str:
+        """
+        Envía el prompt a la API de Gemini con instrucciones de sistema.
+
+        Args:
+            prompt (str): Texto que combina contexto y pregunta del usuario.
+
+        Returns:
+            str: Texto generado por el modelo o mensaje de error.
+        """
         if not self.api_key:
             return "ERROR: Clave GEMINI_API_KEY no configurada."
         try:
-            client = genai.Client(api_key=self.api_key)
-            # Instrucción del sistema (específica de Gemini)
             sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
             
-            response = client.models.generate_content(
+            response = self.client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
@@ -57,18 +101,36 @@ class GeminiProvider(LLMProvider):
             return f"ERROR Gemini: {e}"
 
 class GroqProvider(LLMProvider):
+    """Implementación del proveedor Groq."""
+
     def __init__(self, api_key, model_name):
+        """
+        Constructor de la clase GroqProvider.
+
+        Args:
+            api_key (str): Clave de API de Groq.
+            model_name (str): Identificador del modelo en Groq.
+        """
         self.api_key = api_key
         self.model_name = model_name
+        self.client = Groq(api_key=self.api_key)
 
     def generate(self, prompt: str) -> str:
+        """
+        Realiza una petición de chat completion a la API de Groq.
+
+        Args:
+            prompt (str): Entrada estructurada para el modelo.
+
+        Returns:
+            str: Contenido del mensaje de respuesta generado.
+        """
         if not self.api_key:
             return "ERROR: Clave GROQ_API_KEY no configurada."
         try:
-            client = Groq(api_key=self.api_key)
             sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
             
-            chat = client.chat.completions.create(
+            chat = self.client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": sys_instr},
                     {"role": "user", "content": prompt}
@@ -81,16 +143,32 @@ class GroqProvider(LLMProvider):
             return f"ERROR Groq: {e}"
 
 class OllamaProvider(LLMProvider):
+    """Implementación del proveedor Ollama para ejecución local."""
+
     def __init__(self, api_url, model_name):
+        """
+        Constructor de la clase OllamaProvider.
+
+        Args:
+            api_url (str): URL del endpoint local de Ollama.
+            model_name (str): Nombre del modelo descargado localmente.
+        """
         self.api_url = api_url
         self.model_name = model_name
 
     def generate(self, prompt: str) -> str:
+        """
+        Envía una petición POST al servicio local de Ollama.
+
+        Args:
+            prompt (str): Texto de entrada.
+
+        Returns:
+            str: Respuesta generada por el modelo local.
+        """
         try:
-            # Ollama no usa system instruction, así que lo pegamos al prompt
             sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto.\n\n"
             full_prompt = sys_instr + prompt
-            
             response = requests.post(
                 self.api_url,
                 json={
@@ -106,14 +184,24 @@ class OllamaProvider(LLMProvider):
         except Exception as e:
             return f"ERROR Ollama: {e}"
 
-#   FACTORY (La Fábrica de Objetos) 
+#############################
+## 3. FACTORÍA DE OBJETOS  ##
+#############################
 
 def get_llm_provider(force_provider_name=None) -> LLMProvider:
     """
-    Lee la configuración y devuelve la instancia de la clase correcta.
-    Si se le pasa un argumento usa ese, sino usa el del config.json
-    """
+    Lee la configuración y devuelve la instancia de la clase LLMProvider correcta.
     
+    Args:
+        force_provider_name (str, optional): Permite forzar un proveedor específico. 
+            Si no se indica, se toma el valor 'active_llm' del config.json.
+
+    Returns:
+        LLMProvider: Una instancia concreta (Gemini, Groq u Ollama) según la elección.
+
+    Raises:
+        ValueError: Si el proveedor no existe en la configuración o es desconocido.
+    """
     if force_provider_name:
         active_llm = force_provider_name
     else:
@@ -141,8 +229,18 @@ def get_llm_provider(force_provider_name=None) -> LLMProvider:
     else:
         raise ValueError(f"Proveedor desconocido: {active_llm}")
 
-#   Conexión con la base de datos
+###################################
+## 4. CONEXIÓN Y RECUPERACIÓN    ##
+###################################
+
 def connect_to_elastic():
+    """
+    Inicializa la conexión con Elasticsearch.
+    
+    Returns:
+        Elasticsearch: Cliente conectado.
+        None: Si falla la conexión.
+    """
     print(f"Conectando a Elasticsearch...")
     conf = CONFIG["elastic"]
     try:
@@ -152,15 +250,21 @@ def connect_to_elastic():
             verify_certs=False, 
             request_timeout=10 
         )
-        if client.info():
+        if client.ping():
             print("¡Conexión con Elasticsearch exitosa!")
             return client
     except Exception as e:
         print(f"Error conectando a Elasticsearch: {e}")
         return None
 
-#   Cargar el embedding
 def load_embedding_model():
+    """
+    Carga el modelo de SentenceTransformer para generar representaciones vectoriales.
+
+    Returns:
+        SentenceTransformer: El modelo cargado en memoria listo para codificar texto.
+        None: Si ocurre un error durante la carga.
+    """
     print(f"Cargando modelo de embedding...")
     try:
         return SentenceTransformer(MODEL_NAME)
@@ -168,8 +272,19 @@ def load_embedding_model():
         print(f"Error al cargar modelo: {e}")
         return None
 
-#   Búsqueda de los chunks más relevantes
-def search_retriever(client, model, query_text, top_k=8):
+def search_retriever(client, model, query_text, top_k=5):
+    """
+    Realiza una búsqueda k-NN para recuperar contexto relevante.
+    
+    Args:
+        client (Elasticsearch): Cliente de la base de datos.
+        model (SentenceTransformer): Modelo para vectorizar la consulta.
+        query_text (str): La pregunta del usuario.
+        top_k (int): Número de fragmentos a recuperar.
+
+    Returns:
+        tuple: (Lista de fragmentos de texto, Lista de URLs de origen).
+    """
     try:
         query_vector = model.encode(query_text).tolist()
         knn_query = {
@@ -177,7 +292,7 @@ def search_retriever(client, model, query_text, top_k=8):
                 "field": "embedding_vector",
                 "query_vector": query_vector,
                 "k": top_k,
-                "num_candidates": 20
+                "num_candidates": 50
             },
             "_source": ["chunk_text", "document_url"]
         }
@@ -190,28 +305,40 @@ def search_retriever(client, model, query_text, top_k=8):
         print(f"Error búsqueda: {e}")
         return [], []
 
-#   Generar el prompt
 def build_rag_prompt(query, context_chunks):
+    """
+    Construye el prompt final inyectando los fragmentos de contexto recuperados.
+
+    Args:
+        query (str): La pregunta original del usuario.
+        context_chunks (list[str]): Fragmentos de texto obtenidos de Elasticsearch.
+
+    Returns:
+        str: Prompt estructurado listo para ser enviado al LLM.
+    """
     context = "\n---\n".join(context_chunks)
     return f"""
-    CONTEXTO:
+    CONTEXTO RECUPERADO DE GUÍAS DOCENTES UPM:
     ---
     {context}
     ---
     PREGUNTA: {query}
-    RESPUESTA (basada solo en el contexto):
+    RESPUESTA (Responde de forma concisa basándote exclusivamente en el contexto anterior):
     """
 
-#   BUCLE PRINCIPAL
+########################
+## 5. BUCLE PRINCIPAL ##
+########################
 
 if __name__ == "__main__":
-    
-    # 1. Inicialización
+    """
+    Ejecución del asistente en modo consola.
+    """
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
     
     try:
-        llm_engine = get_llm_provider() # Cargamos el LLM activo 
+        llm_engine = get_llm_provider()
         print(f"Model cargado: {type(llm_engine).__name__}")
     except Exception as e:
         print(f"Error al configurar LLM: {e}")
@@ -236,7 +363,6 @@ if __name__ == "__main__":
                 print("No se encontró información relevante.")
                 continue
 
-            # Usamos el método generate() de la interfaz abstracta
             print("... generando respuesta ...")
             prompt = build_rag_prompt(user_query, chunks)
             answer = llm_engine.generate(prompt)
