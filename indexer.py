@@ -1,17 +1,25 @@
-import os
-import requests                             # Para llamar a la API de CKAN
-import schedule                             # Para el trabajo periódico
+"""
+Módulo de Indexación y Sincronización de Guías Docentes.
+
+Este script se encarga de la ingesta de datos desde el portal CKAN de la UPM,
+su procesamiento (conversión a Markdown y fragmentación) y su posterior
+almacenamiento vectorial en Elasticsearch para habilitar la búsqueda semántica.
+"""
+# Librerías
+import requests
+import schedule
 import time
-import io                                   # Para manejar los bytes del PDF descargado
-import json                                 # Para leer la configuración
+import io
+import json
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk      # Para inserción en lote
+from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer 
 from markitdown import MarkItDown
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-#    Configuración Global
-
+#############################
+## 0. CONFIGURACIÓN GLOBAL ##
+#############################
 try:
     with open('config.json', 'r') as f:
         CONFIG = json.load(f)
@@ -19,15 +27,28 @@ except FileNotFoundError:
     print("ERROR: No se encuentra el archivo config.json.")
     exit()
 
+# Asignación de variables desde el archivo de configuración centralizado.
 ELASTIC_CONFIG = CONFIG["elastic"]
 CKAN_API_URL = CONFIG["ckan"]["api_url"]
 MODEL_NAME = CONFIG["embeddings"]["model_name"]
 EMBEDDING_DIM = CONFIG["embeddings"]["dim"]
 INDEX_NAME = ELASTIC_CONFIG["index_name"]
-#     Funciones de Elasticsearch
+CKAN_API_QUERY = CONFIG["ckan"]["query"]
+
+#################################
+## 1. FUNCIONES ELASTICSEARCH  ##
+#################################
 
 def connect_to_elastic():
-    """Se conecta a Elasticsearch y devuelve el cliente."""
+    """
+    Establece la conexión con el servidor de Elasticsearch.
+
+    Utiliza los parámetros definidos en ELASTIC_CONFIG para inicializar el cliente.
+
+    Returns:
+        Elasticsearch: Cliente instanciado si la conexión es exitosa.
+        None: Si ocurre un error durante la conexión.
+    """
     print(f"Conectando a Elasticsearch...")
     try:
         client = Elasticsearch(
@@ -44,6 +65,15 @@ def connect_to_elastic():
         return None
 
 def create_index_mapping(client):
+    """
+    Crea el índice en Elasticsearch con un mapeo específico para búsqueda vectorial.
+
+    Define campos para metadatos (IDs, URLs) y el campo 'embedding_vector' 
+    de tipo 'dense_vector' para almacenar los vectores del modelo SentenceTransformer.
+
+    Args:
+        client (Elasticsearch): El cliente de conexión activo.
+    """
     if client.indices.exists(index=INDEX_NAME):
         print(f"El índice '{INDEX_NAME}' ya existe.")
         return
@@ -51,22 +81,16 @@ def create_index_mapping(client):
     mapping_body = {
         "mappings": {
             "properties": {
-                # ID del recurso PDF original de CKAN
                 "document_id": { "type": "keyword" }, 
                 
-                # URL del PDF original
                 "document_url": { "type": "keyword" },
                 
-                # Texto del chunk
                 "chunk_text": { "type": "text" }, 
                 
-                # Vector de embedding del chunk
                 "embedding_vector": {
                     "type": "dense_vector",
                     "dims": EMBEDDING_DIM 
                 },
-                
-                # Sello de tiempo de la API de CKAN
                 "modified_date": { "type": "date" } 
             }
         }
@@ -77,10 +101,24 @@ def create_index_mapping(client):
     except Exception as e:
         print(f"Error al crear el índice: {e}")
 
-#    Lógica de Procesamiento
+################################
+## 2. LÓGICA DE PROCESAMIENTO ##
+################################
 
 def convert_pdf_to_markdown(pdf_content_bytes):
-    """Convierte el contenido de un PDF (en bytes) a Markdown."""
+    """
+    Transforma el contenido binario de un PDF a formato Markdown.
+
+    Utiliza la librería MarkItDown para extraer el texto preservando 
+    la estructura semántica básica del documento.
+
+    Args:
+        pdf_content_bytes (bytes): Contenido del archivo PDF en crudo.
+
+    Returns:
+        str: Texto convertido a Markdown.
+        None: Si la conversión falla.
+    """
     md_converter = MarkItDown(enable_plugins=False)
     try:
         with io.BytesIO(pdf_content_bytes) as f:
@@ -91,7 +129,18 @@ def convert_pdf_to_markdown(pdf_content_bytes):
         return None
 
 def get_chunks_from_markdown(markdown_content):
-    """Divide el Markdown usando RCTS."""
+    """
+    Divide un texto largo en fragmentos (chunks) más pequeños.
+
+    Implementa RecursiveCharacterTextSplitter (RCTS) para asegurar que 
+    los cortes respeten la estructura de párrafos y títulos.
+
+    Args:
+        markdown_content (str): Texto completo en formato Markdown.
+
+    Returns:
+        list: Lista de fragmentos de texto (strings).
+    """
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1500, 
         chunk_overlap=150,
@@ -99,10 +148,20 @@ def get_chunks_from_markdown(markdown_content):
     )
     return text_splitter.split_text(markdown_content)
 
-#    Lógica del Sincronizador
+#################################
+## 3. LÓGICA DEL SINCRONIZADOR ##
+#################################
 
 def fetch_ckan_resources():
-    """Obtiene la lista de todos los recursos PDF de la API."""
+    """
+    Recupera de forma paginada todos los recursos disponibles en CKAN.
+
+    Utiliza un bucle iterativo con 'limit' y 'offset' para garantizar 
+    la obtención de la totalidad de las guías sin saturar la API.
+
+    Returns:
+        list: Lista de diccionarios con la información de cada recurso.
+    """
     all_resources = []
     limit = 500
     offset = 0
@@ -110,7 +169,7 @@ def fetch_ckan_resources():
     try:
         while True:
             params = {
-                "query": "mimetype:application/pdf",
+                "query": CKAN_API_QUERY,
                 "limit": limit,
                 "offset": offset
             }
@@ -131,14 +190,20 @@ def fetch_ckan_resources():
         print(f"Total recursos PDF obtenidos hasta ahora: {len(all_resources)}")
         return all_resources
     except requests.RequestException as e:    
-        print(f"La API de CKAN devolvió un error: {data.get('error')}")
+        print(f"La API de CKAN devolvió un error: {e}")
         return all_resources
 
     
 def document_exists(client, document_id):
     """
-    NUEVA FUNCIÓN: Comprueba si un documento ya está en la base de datos.
-    Solo mira si existe el ID, ignora fechas o versiones.
+    Verifica la existencia de un documento en el índice actual.
+
+    Args:
+        client (Elasticsearch): Cliente de conexión.
+        document_id (str): ID único del recurso en CKAN.
+
+    Returns:
+        bool: True si el documento ya está indexado, False en caso contrario.
     """
     try:
         count = client.count(index=INDEX_NAME, body={
@@ -146,29 +211,34 @@ def document_exists(client, document_id):
         })
         return count["count"] > 0
     except Exception:
-        # Si el índice no existe o falla, asumimos que no existe
         return False
 
 def process_and_index_document(client, model, resource):
     """
-    Descarga, procesa (PDF->MD->Chunks->Vectores) e indexa
-    un solo documento en Elasticsearch.
+    Ejecuta el pipeline RAG completo para un único documento.
+
+    Pasos: Descarga -> Conversión -> Chunking -> Vectorización -> Indexación Bulk.
+
+    Args:
+        client (Elasticsearch): Cliente de conexión.
+        model (SentenceTransformer): Modelo para generar embeddings.
+        resource (dict): Datos del recurso obtenidos de CKAN.
     """
     doc_id = resource['id']
     doc_url = resource['url']
-    mod_date = resource['metadata_modified']    # "Sello" de version
+    mod_date = resource['metadata_modified']
     
-    # 1. Descargar el PDF
+    # Descarga del PDF.
     print(f"-> Descargando: {doc_url}")
     try:
-        pdf_response = requests.get(doc_url, timeout=30)    # 30s de timeout
+        pdf_response = requests.get(doc_url, timeout=30)    
         pdf_response.raise_for_status()
-        pdf_content = pdf_response.content                  # Contenido implicito del PDF
+        pdf_content = pdf_response.content
     except requests.RequestException as e:
         print(f"ERROR al descargar {doc_url}: {e}")
-        return # Saltamos este documento
+        return
 
-    # 2. Procesar (MarkItDown y Chunking)
+    # Procesamiento del PDF (MarkItDown + Chunking)
     print("-> Procesando con MarkItDown...")
     markdown_text = convert_pdf_to_markdown(pdf_content)    
     if not markdown_text:
@@ -176,17 +246,16 @@ def process_and_index_document(client, model, resource):
         return 
     
     print("-> Dividiendo en Chunks (RCTS)...")
-    chunks = get_chunks_from_markdown(markdown_text)        # Contenido dividido según 
-                                                            # ["\n# ", "\n## ", "\n\n", ".\n", "\n", " ", ""]
+    chunks = get_chunks_from_markdown(markdown_text)        
     if not chunks:
         print("ERROR: No se generaron chunks.")
         return
         
-    # 3. Vectorizar (Embedding)
+    # Vectorización de los chunks con el modelo de embedding.
     print(f"-> Vectorizando {len(chunks)} chunks...")
     embeddings = model.encode(chunks, show_progress_bar=False)
 
-    # 4. Preparar para Elasticsearch (Inserción en Lote)
+    # Inserción masiva en Elasticsearch utilizando Bulk API
     actions = []
     for i, chunk in enumerate(chunks):
         action = {
@@ -195,24 +264,30 @@ def process_and_index_document(client, model, resource):
                 "document_id": doc_id,
                 "document_url": doc_url,
                 "chunk_text": chunk,
-                "embedding_vector": embeddings[i],
+                "embedding_vector": embeddings[i].tolist(),
                 "modified_date": mod_date
             }
         }
         actions.append(action)
 
-    # 5. Insertar en Lote (Bulk Insert)
     if actions:
         print(f"-> Indexando {len(actions)} chunks en Elasticsearch...")
         try:
-            bulk(client, actions, refresh=True) # refresh=True lo hace visible inmediatamente
+            bulk(client, actions, refresh=True) 
             print(f"¡Éxito! Documento {doc_id} indexado.")
         except Exception as e:
             print(f"ERROR durante la indexación en lote (bulk): {e}")
 
 def run_sync_job(client, model):
     """
-    El trabajo principal: Compara CKAN con ES y actualiza lo necesario.
+    Coordina el proceso de sincronización global.
+
+    Obtiene recursos de CKAN y procesa únicamente aquellos que 
+    no existan previamente en Elasticsearch.
+
+    Args:
+        client (Elasticsearch): Cliente de conexión.
+        model (SentenceTransformer): Modelo para generar embeddings.
     """
     print(f"\n--- [ {time.ctime()} ] ---")
     print("Iniciando trabajo de sincronización de guías docentes...")
@@ -244,35 +319,37 @@ def run_sync_job(client, model):
     
     print("\n--- [ Trabajo de sincronización finalizado ] ---")
 
-#    Ejecución Principal
+############################
+## 4. EJECUCIÓN PRINCIPAL ##
+############################
 
 if __name__ == "__main__":
+    """
+    Punto de entrada del script.
     
+    Inicializa los clientes, ejecuta una sincronización inmediata y 
+    programa las ejecuciones futuras cada 24 horas.
+    """
     es_client = connect_to_elastic()
     
     if es_client:
-        # 1. Asegurarse de que el mapping existe
         create_index_mapping(es_client)
-        
-        # 2. Cargar el modelo de embedding (solo una vez)
+
         print(f"\nCargando modelo de embedding ({MODEL_NAME}) en memoria...")
-        # (Esto puede tardar un poco la primera vez)
         embedding_model = SentenceTransformer(MODEL_NAME)
         print("Modelo de embedding cargado y listo.")
         
-        # 1. Ejecutar el trabajo una vez inmediatamente al arrancar
+        # Primera ejecución
         print("\nEjecutando la primera sincronización al inicio...")
         run_sync_job(es_client, embedding_model)
         
-        # 2. Programar el trabajo para que se ejecute cada X tiempo     -> Para pruebas, poner .every(1).minutes
+        # Programación de ejecuciones futuras cada 24 horas
         print("\nProgramando el trabajo para ejecutarse cada 24 horas...")
         schedule.every(24).hours.do(run_sync_job, client=es_client, model=embedding_model)
         
-        # 3. Bucle infinito para mantener el script vivo y funcionando
         print("El indexador está ahora en modo 'schedule'. Presiona Ctrl+C para salir.")
         while True:
             schedule.run_pending()
-            time.sleep(60) # Dormir por un minuto antes de comprobar nuevamente
-            
+            time.sleep(60) 
     else:
         print("\nERROR: No se pudo conectar a Elasticsearch. Saliendo.")
