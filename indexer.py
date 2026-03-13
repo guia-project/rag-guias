@@ -15,7 +15,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from sentence_transformers import SentenceTransformer 
 from markitdown import MarkItDown
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 
 #############################
 ## 0. CONFIGURACIÓN GLOBAL ##
@@ -130,10 +130,11 @@ def convert_pdf_to_markdown(pdf_content_bytes):
 
 def get_chunks_from_markdown(markdown_content):
     """
-    Divide un texto largo en fragmentos (chunks) más pequeños.
+    Divide un texto largo en fragmentos (chunks) estructurados.
 
-    Implementa RecursiveCharacterTextSplitter (RCTS) para asegurar que 
-    los cortes respeten la estructura de párrafos y títulos.
+    Utiliza una estrategia de 2 fases: primero divide semánticamente basándose 
+    en las cabeceras Markdown y luego asegura el tamaño máximo con un divisor de caracteres.
+    Inyecta la jerarquía del documento dentro del propio texto para no perder contexto.
 
     Args:
         markdown_content (str): Texto completo en formato Markdown.
@@ -141,13 +142,35 @@ def get_chunks_from_markdown(markdown_content):
     Returns:
         list: Lista de fragmentos de texto (strings).
     """
+    headers_to_split_on = [
+        ("#", "Sección_Principal"),
+        ("##", "Subseccion"),
+        ("###", "Apartado")
+    ]
+
+    markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    md_header_splits = markdown_splitter.split_text(markdown_content)
+
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1500, 
         chunk_overlap=150,
-        separators=["\n# ", "\n## ", "\n\n", ".\n", "\n", " ", ""]
+        separators=["\n\n", ".\n", "\n", " ", ""]
     )
-    return text_splitter.split_text(markdown_content)
 
+    final_splits = text_splitter.split_documents(md_header_splits)
+
+    chunks = []
+    for doc in final_splits:
+        context_path = " > ".join([f"{v}" for k, v in doc.metadata.items()])
+
+        if context_path:
+            chunk_text = f"{context_path}\n{doc.page_content}"
+        else:
+            chunk_text = doc.page_content
+        
+        chunks.append(chunk_text)
+    
+    return chunks
 #################################
 ## 3. LÓGICA DEL SINCRONIZADOR ##
 #################################
