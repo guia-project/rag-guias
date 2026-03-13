@@ -13,8 +13,7 @@ import warnings
 from abc import ABC, abstractmethod
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
-from google import genai
-from google.genai import types
+from mistralai import Mistral
 from groq import Groq
 
 #############################
@@ -58,24 +57,24 @@ class LLMProvider(ABC):
 ## 2. IMPLEMENTACIONES DE PROVEEDORES  ##
 #########################################
 
-class GeminiProvider(LLMProvider):
-    """Implementación del proveedor Google Gemini."""
+class MistralProvider(LLMProvider):
+    """Implementación del proveedor Mistral AI."""
 
     def __init__(self, api_key, model_name):
         """
-        Constructor de la clase GeminiProvider.
+        Constructor de la clase MistralProvider.
 
         Args:
-            api_key (str): Clave de API para autenticación en Google AI.
+            api_key (str): Clave de API para autenticación en Mistral AI.
             model_name (str): Identificador del modelo.
         """
         self.api_key = api_key
         self.model_name = model_name
-        self.client = genai.Client(api_key=self.api_key)
+        self.client = Mistral(api_key=self.api_key)
 
     def generate(self, prompt: str) -> str:
         """
-        Envía el prompt a la API de Gemini con instrucciones de sistema.
+        Envía el prompt a la API de Mistral con instrucciones de sistema.
 
         Args:
             prompt (str): Texto que combina contexto y pregunta del usuario.
@@ -84,21 +83,21 @@ class GeminiProvider(LLMProvider):
             str: Texto generado por el modelo o mensaje de error.
         """
         if not self.api_key:
-            return "ERROR: Clave GEMINI_API_KEY no configurada."
+            return "ERROR: Clave MISTRAL_API_KEY no configurada."
         try:
             sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
             
-            response = self.client.models.generate_content(
+            response = self.client.chat.complete(
                 model=self.model_name,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=sys_instr,
-                    temperature=0.0
-                )
+                messages=[
+                    {"role": "system", "content": sys_instr},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0
             )
-            return response.text
+            return response.choices[0].message.content
         except Exception as e:
-            return f"ERROR Gemini: {e}"
+            return f"ERROR Mistral: {e}"
 
 class GroqProvider(LLMProvider):
     """Implementación del proveedor Groq."""
@@ -211,8 +210,8 @@ def get_llm_provider(force_provider_name=None) -> LLMProvider:
     if not options:
         raise ValueError(f"Configuración no encontrada para: {active_llm}")
 
-    if active_llm == "gemini":
-        return GeminiProvider(
+    if active_llm == "mistral":
+        return MistralProvider(
             api_key=options.get("api_key"),
             model_name=options["model"]
         )

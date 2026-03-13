@@ -78,5 +78,85 @@
   {
     "pregunta": "¿Qué subtemas se tratan en el bloque de Técnicas de la Calidad en Calidad del Software?",
     "referencia": "Técnicas básicas, técnicas estadísticas y técnicas avanzadas."
+  },
+  {
+    "pregunta": "¿Cuántos créditos ECTS tiene la asignatura Instalaciones de Riego I?",
+    "referencia": "Tiene una carga de 2 créditos ECTS."
+  },
+  {
+    "pregunta": "¿Quién es el coordinador de la asignatura Instalaciones de Riego I?",
+    "referencia": "El coordinador es Ruben Moratiel Yugueros."
+  },
+  {
+    "pregunta": "¿Qué peso tiene el informe técnico en la nota final de la evaluación progresiva de Riego I?",
+    "referencia": "El informe técnico tiene un peso del 80% en la nota final."
+  },
+  {
+    "pregunta": "¿Con qué Objetivos de Desarrollo Sostenible (ODS) se relaciona la asignatura de Riego I según su guía?",
+    "referencia": "Se relaciona con el ODS 11 (Ciudades y comunidades sostenibles) y el ODS 3 (Salud y Bienestar)."
+  },
+  {
+    "pregunta": "¿Qué asignatura previa se recomienda haber cursado para Sistemas de Control Discreto?",
+    "referencia": "Se recomienda haber cursado Sistemas Electrónicos Aeroespaciales."
+  },
+  {
+    "pregunta": "¿Cuál es el carácter de la asignatura Sistemas de Control Discreto?",
+    "referencia": "Es una asignatura de carácter optativo."
+  },
+  {
+    "pregunta": "¿Qué duración tiene el examen de evaluación progresiva y global de Sistemas de Control Discreto?",
+    "referencia": "Tiene una duración de 04:00 horas."
+  },
+  {
+    "pregunta": "¿Qué capacidad adquiere el alumno según el resultado de aprendizaje RA131 en Sistemas de Control Discreto?",
+    "referencia": "El alumno posee la capacidad de analizar la estabilidad de un sistema de vuelo."
+  },
+  {
+    "pregunta": "¿En qué idiomas se imparte la asignatura Análisis Dinámico y Sísmico de Estructuras?",
+    "referencia": "Se imparte en Inglés y Castellano."
+  },
+  {
+    "pregunta": "¿Cuál es la asignatura previa recomendada para cursar Análisis Dinámico y Sísmico de Estructuras?",
+    "referencia": "Se recomienda haber cursado Elementos Finitos."
+  },
+  {
+    "pregunta": "¿Qué peso tiene el examen final (EM2) en la nota final de Análisis Dinámico y Sísmico de Estructuras?",
+    "referencia": "El examen final tiene un peso del 60% en la calificación final."
+  },
+  {
+    "pregunta": "¿Qué habilidades de programación se recomiendan para la asignatura de Análisis Dinámico y Sísmico de Estructuras?",
+    "referencia": "Se recomiendan habilidades de programación en MATLAB."
+  },
+  {
+    "pregunta": "¿Qué dos enfoques se utilizan en Metodologías de Desarrollo Web para abordar la gestión de proyectos?",
+    "referencia": "Se aborda desde dos enfoques: pesado/tradicional y ligero/ágil."
+  },
+  {
+    "pregunta": "¿Cuál es el porcentaje mínimo de asistencia y participación activa requerido para la evaluación continua en Metodologías de Desarrollo Web?",
+    "referencia": "Es necesario asistir y participar activamente en al menos el 70% de las clases."
+  },
+  {
+    "pregunta": "¿Qué peso tiene el 'Test' en la evaluación progresiva de Metodologías de Desarrollo Web?",
+    "referencia": "El test tiene un peso del 15% en la nota final."
+  },
+  {
+    "pregunta": "¿Qué nota mínima se exige en cada una de las dos prácticas obligatorias para poder promediar en Metodologías de Desarrollo Web?",
+    "referencia": "Es obligatorio obtener al menos un 30% de la nota (3/10) en cada práctica."
+  },
+  {
+    "pregunta": "¿Cuál es el carácter de la asignatura Álgebra en el Grado en Ingeniería del Software?",
+    "referencia": "Es una asignatura de carácter básico."
+  },
+  {
+    "pregunta": "¿Cómo se calcula la nota del examen (EX) en la evaluación progresiva de Álgebra?",
+    "referencia": "Se calcula mediante la fórmula EX = 20%EP1 + 20%EP2 + 60%EP3."
+  },
+  {
+    "pregunta": "¿Qué algoritmo se estudia específicamente en el tema 5.2 de la asignatura Álgebra?",
+    "referencia": "Se estudia el algoritmo de ortogonalización de Gram-Schmidt."
+  },
+  {
+    "pregunta": "¿Cómo es la planificación descrita en el cronograma de Álgebra en cuanto a la presencialidad?",
+    "referencia": "La planificación está diseñada para ser 100% presencial."
   }
 ]
