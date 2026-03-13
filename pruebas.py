@@ -53,7 +53,7 @@ def run_quality_test(dataset_path):
         
         # Cálculo de métricas individuales para esta pregunta
         # (Usamos listas de un solo elemento para evaluar pregunta por pregunta)
-        score_bleu = bleu.compute(predictions=[respuesta_ia], references=[referencia])['bleu']
+        score_bleu = bleu.compute(predictions=[respuesta_ia], references=[[referencia]])['bleu']
         score_meteor = meteor.compute(predictions=[respuesta_ia], references=[referencia])['meteor']
         score_rouge = rouge.compute(predictions=[respuesta_ia], references=[referencia])['rougeL']
         

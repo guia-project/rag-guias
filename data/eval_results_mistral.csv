@@ -1,0 +1,104 @@
+﻿ID,Pregunta,Respuesta_IA,Referencia_Humana,BLEU,METEOR,ROUGE-L
+1,¿Cuál es la capital de España?,"El contexto proporcionado no menciona la capital de España. Por lo tanto, no puedo responder a esa pregunta basándome en la información dada.","Lo siento, no he encontrado información sobre la capital de España en las guías docentes proporcionadas.",0.11902001907030836,0.4725690170564446,0.3111111111111111
+2,¿Cuál es el objetivo de la asignatura Calidad del Software?,"El contexto proporcionado no incluye información sobre la asignatura ""Calidad del Software"". Por lo tanto, no puedo responder a la pregunta basada únicamente en el contexto dado.","Presentar técnicas y mediciones de calidad, modelos y procesos para la gestión de la calidad en el ámbito de la ingeniería del software.",0.0,0.26780996301100063,0.1851851851851852
+3,¿Qué temas se estudian en el bloque de Análisis de Software de Fundamentos de Ingeniería del Software?,"En el bloque de Análisis de Software de Fundamentos de Ingeniería del Software se estudian los siguientes temas:
+
+3.1. Introducción
+3.2. Modelado Estructural I: Diagramas de clases
+3.3. Modelado Comportamiento: Diagramas de estados, actividad y secuencia
+3.4. Trazabilidad de Requisitos a Análisis","Introducción al análisis, modelado estructural mediante diagramas de clases, modelado de comportamiento con diagramas de estados, actividad y secuencia, y trazabilidad de requisitos a análisis.",0.1140755751959921,0.5977670132325142,0.5384615384615385
+4,¿Cómo se calcula la nota final en Fundamentos de Economía y Empresa mediante evaluación progresiva?,"En Fundamentos de Economía y Empresa, la nota final mediante evaluación progresiva se calcula de la siguiente manera:
+
+- Un 15% de la nota final proviene de la realización de trabajos, corrección y presentación de problemas.
+- Un 85% de la nota final proviene de la nota media de dos pruebas realizadas durante el curso.
+
+Para aprobar la asignatura, la nota final de evaluación progresiva debe ser mayor o igual a 5. Si no se alcanza esta nota, el estudiante podrá presentarse a la Prueba de Evaluación Global.","La calificación final es la suma ponderada de: prácticas individuales (10%), entrega y presentación del Trabajo Grupal (15%) y una prueba global (75%).",0.0,0.22725128321256038,0.1680672268907563
+5,¿Cuál es la fórmula para obtener la nota de teoría (ET) en Programación Orientada a Objetos?,"La fórmula para obtener la nota de teoría (ET) en la asignatura mencionada en el contexto es:
+
+Nota Teoría = 0,9 · NPEI + 0,1 · NEAT
+
+Donde:
+- NPEI: Nota pruebas de evaluación individual
+- NEAT: Nota de entregables asociados a la teoría.","ET = ET1 * 0.40 + ET2 * 0.60, donde ET1 es el examen intermedio y ET2 es el examen final de la convocatoria ordinaria.",0.0,0.1530612244897959,0.1764705882352941
+6,¿Qué capacidad pretende dotar al alumno la asignatura Contaminación de Suelos y Aguas Subterráneas?,"La asignatura ""Contaminación de Suelos y Aguas Subterráneas"" pretende dotar al alumno de la capacidad para identificar y describir los principales procesos de degradación química, física y biológica del suelo y el agua, con énfasis en la erosión hídrica. Además, el alumno será capaz de proponer medidas de conservación y recuperación de suelos degradados y aguas contaminadas o de baja calidad.","Capacidad de detectar y diagnosticar problemas de afección a los suelos y las aguas subterráneas, así como diseñar y supervisar las actuaciones para evaluar su alcance e implicaciones.",0.0,0.22189349112426038,0.1553398058252427
+7,¿Cuáles son las asignaturas previas recomendadas para cursar Calidad del Software?,El plan de estudios Doble Grado en Ingeniería Informática y en ADE no tiene definidas asignaturas previas recomendadas para esta asignatura.,Se recomienda haber cursado previamente Fundamentos de Ingeniería del Software.,0.0,0.12396694214876032,0.1764705882352941
+8,¿Qué condiciones debe cumplir un estudiante para aprobar Fundamentos de Ingeniería del Software en evaluación ordinaria?,"Para aprobar Fundamentos de Ingeniería del Software en evaluación ordinaria, el estudiante debe cumplir con las siguientes condiciones:
+
+1. Obtener una media mínima de 3 en los exámenes realizados. Esta media se calcula como:
+   - Nota exámenes = (0.2·Ex0 + 0.4·Ex1 + 0.4·Ex2)
+2. La nota final de la asignatura se calculará como:
+   - Nota Asignatura = 0.75·Nota Exámenes + 0.25·Nota de Prácticas
+
+Además, las prácticas y tareas en grupo supondrán un 25% de la nota del curso.","La nota del examen final debe ser igual o mayor a 4, y la nota de cada bloque (teoría y práctica) así como la nota final deben ser iguales o mayores a 5.",0.0,0.2638510556496274,0.14285714285714285
+9,¿Qué temas de Macroeconomía se incluyen en Fundamentos de Economía y Empresa?,"En el contexto proporcionado, los temas de Macroeconomía incluidos en ""Fundamentos de Economía y Empresa"" son:
+
+1. Concepto
+2. Variables macroeconómicas
+3. Los instrumentos de política macroeconómica
+4. Oferta y demanda agregadas
+5. Renta Nacional y otras macromagnitudes","Concepto de macroeconomía, variables macroeconómicas, instrumentos de política macroeconómica, oferta y demanda agregadas, y Renta Nacional y otras macromagnitudes.",0.1615536073745275,0.7239854116551564,0.6363636363636364
+10,¿Qué porcentaje de la nota final representa la evaluación de prácticas en Programación Orientada a Objetos?,"El contexto proporcionado no menciona la asignatura ""Programación Orientada a Objetos"". Por lo tanto, no es posible responder a la pregunta basada en la información dada.",La evaluación de prácticas representa el 70% de la nota final de la asignatura.,0.0,0.17142857142857143,0.18181818181818182
+11,¿Cuál es el temario de la asignatura Contaminación de Suelos y Aguas Subterráneas?,"El temario de la asignatura ""Contaminación de Suelos y Recuperación"" es el siguiente:
+
+1. Contaminación
+   1.1. Concepto de contaminación. Causas naturales y antrópicas
+   1.2. Origen de los contaminantes
+   1.3. Focos de contaminación. Selección del tipo de muestreo. Análisis y NGR
+   1.4. Evaluación de riesgos
+
+2. Propiedades del suelo que afectan a la interacción contaminante/suelo
+
+3. Tipos de contaminantes
+   3.1. Inorgánicos
+   3.2. Orgánicos
+
+4. Propiedades de los contaminantes
+
+5. Interacción de contaminantes con los componentes del suelo y agua
+
+6. Transporte y acumulación de contaminantes
+
+7. Tecnologías para inmovilizar el contaminante","Marco legal y técnico, legislación de suelos, partición de contaminantes, flujo de aguas subterráneas, transporte de contaminantes, fases libres no acuosas, diseño de muestreo, perforación, muestreo de campo y control de calidad.",0.0,0.1673640167364017,0.18666666666666668
+12,¿Cuáles son los dos escenarios de evaluación global en Calidad del Software?,"En la asignatura de Calidad del Software, los dos escenarios de evaluación global son:
+
+1. **Evaluación Global en Convocatoria Ordinaria**: Los estudiantes pueden renunciar a la evaluación progresiva y optar por la evaluación global al final del semestre, conservando las notas obtenidas en las pruebas a las que se hayan presentado y en las que hayan superado la nota mínima.
+
+2. **Evaluación Global en Convocatoria Extraordinaria**: La evaluación se realizará usando los mismos tipos de técnicas evaluativas que en la convocatoria ordinaria, guardando las notas de las pruebas ya superadas.",Escenario 1 para estudiantes que superaron el 70% de las actividades prácticas y Escenario 2 para aquellos que no alcanzaron ese porcentaje.,0.0,0.196141975308642,0.09917355371900825
+13,¿Qué bibliografía se recomienda para el Lenguaje Unificado de Modelado (UML) en Fundamentos de Ingeniería del Software?,"Para el Lenguaje Unificado de Modelado (UML) en Fundamentos de Ingeniería del Software, se recomienda la siguiente bibliografía:
+
+1. **Grady BOOCH, James RUMBAUGH, Ivar JACOBSON.** *The Unified Modeling Language. User Guide.* Ed. Addison Wesley. Massachusetts.
+2. **Perdita STEVENS.** *Utilización de UML en ingeniería del software con objetos y componentes.* Pearson Addison Wesley.
+3. **Página Web oficial de recursos de UML.** Object Management Group (OMG). [http://www.uml.org](http://www.uml.org).","El libro de Booch, Rumbaugh y Jacobson 'El Lenguaje Unificado de Modelado UML' y el sitio web oficial de UML del Object Management Group.",0.034668548519618245,0.4594384570307524,0.29702970297029707
+14,¿En qué consiste la evaluación extraordinaria de Fundamentos de Economía y Empresa para alumnos sin trabajo grupal?,La evaluación extraordinaria para alumnos sin trabajo grupal consiste en un examen teórico donde se deberá demostrar conocimiento y dominio de los diversos contenidos desarrollados en la asignatura.,Consta de una prueba global con contenidos teórico-prácticos (90%) y un proyecto individual audiovisual sobre un caso empresarial (10%).,0.0,0.09505703422053233,0.11538461538461538
+15,¿Qué normativa especial se aplica a los alumnos Erasmus OUT en Calidad del Software para la defensa del trabajo?,"Para los alumnos Erasmus OUT en la asignatura Calidad del Software, se aplica la normativa especial que permite realizar la defensa oral del trabajo final por medios telemáticos. Esta opción solo está justificada para estos estudiantes.","Se permite realizar la defensa oral del trabajo final por medios telemáticos, siendo esta la única causa que justifica la defensa virtual.",0.27639170989660267,0.6453643185669329,0.4590163934426229
+16,¿Con qué Objetivos de Desarrollo Sostenible (ODS) se relaciona la asignatura Contaminación de Suelos y Aguas Subterráneas?,"La asignatura ""Contaminación de Suelos y Aguas Subterráneas"" se relaciona con los siguientes Objetivos de Desarrollo Sostenible (ODS):
+
+- ODS 6: Garantizar la disponibilidad de agua y su gestión sostenible y el saneamiento para todos.",Se relaciona con el ODS 3 (Salud y Bienestar) y el ODS 6 (Agua Limpia y Saneamiento).,0.0,0.46499999999999997,0.33333333333333337
+17,¿Qué temas de diseño se ven en el temario de Programación Orientada a Objetos?,"El contexto proporcionado no menciona específicamente los temas de diseño que se ven en el temario de Programación Orientada a Objetos, ya que se centra en la asignatura de Programación I y en el diseño descendente. Sin embargo, se menciona que en otras asignaturas se estudiarán otras técnicas de diseño, como el diseño orientado a objetos, pero no se detallan los temas específicos de este enfoque.","Principios de diseño, patrones de diseño, metodologías de diseño y diseño orientado a objetos avanzado.",0.0565217553896794,0.45318768533054254,0.29166666666666663
+18,¿Qué actividades opcionales existen en Fundamentos de Ingeniería del Software para sumar puntos extra?,"El contexto proporcionado no menciona actividades opcionales específicas para sumar puntos extra en la asignatura ""Fundamentos de Ingeniería del Software"". Por lo tanto, no es posible responder a la pregunta basada únicamente en la información dada.","Actividades presenciales como test o encuestas que suman 0,2 décimas adicionales sobre la nota de teoría y 0,2 sobre la nota de prácticas.",0.0,0.09727626459143969,0.14925373134328357
+19,¿Cuál es el resultado de aprendizaje RA7 en Fundamentos de Economía y Empresa?,"El contexto proporcionado no incluye información sobre el resultado de aprendizaje RA7 en Fundamentos de Economía y Empresa. Por lo tanto, no es posible responder a la pregunta basada únicamente en el contexto dado.",Comprende y es capaz de interpretar las cuentas anuales de una empresa.,0.0,0.2272727272727273,0.125
+20,¿Qué subtemas se tratan en el bloque de Técnicas de la Calidad en Calidad del Software?,"En el bloque de Técnicas de la Calidad en la asignatura de Calidad del Software, se tratan los siguientes subtemas:
+
+2.1. Técnicas básicas.
+2.2. Técnicas estadísticas.
+2.3. Técnicas avanzadas.","Técnicas básicas, técnicas estadísticas y técnicas avanzadas.",0.0,0.6355932203389831,0.43999999999999995
+21,¿Cuántos créditos ECTS tiene la asignatura Instalaciones de Riego I?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Tiene una carga de 2 créditos ECTS.,0.0,0.038461538461538464,0.0
+22,¿Quién es el coordinador de la asignatura Instalaciones de Riego I?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",El coordinador es Ruben Moratiel Yugueros.,0.0,0.041322314049586785,0.0
+23,¿Qué peso tiene el informe técnico en la nota final de la evaluación progresiva de Riego I?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",El informe técnico tiene un peso del 80% en la nota final.,0.0,0.027173913043478264,0.0
+24,¿Con qué Objetivos de Desarrollo Sostenible (ODS) se relaciona la asignatura de Riego I según su guía?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se relaciona con el ODS 11 (Ciudades y comunidades sostenibles) y el ODS 3 (Salud y Bienestar).,0.0,0.01953125,0.0
+25,¿Qué asignatura previa se recomienda haber cursado para Sistemas de Control Discreto?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se recomienda haber cursado Sistemas Electrónicos Aeroespaciales.,0.0,0.038461538461538464,0.0
+26,¿Cuál es el carácter de la asignatura Sistemas de Control Discreto?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Es una asignatura de carácter optativo.,0.0,0.041322314049586785,0.0
+27,¿Qué duración tiene el examen de evaluación progresiva y global de Sistemas de Control Discreto?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Tiene una duración de 04:00 horas.,0.0,0.041322314049586785,0.0
+28,¿Qué capacidad adquiere el alumno según el resultado de aprendizaje RA131 en Sistemas de Control Discreto?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",El alumno posee la capacidad de analizar la estabilidad de un sistema de vuelo.,0.0,0.02590673575129534,0.0
+29,¿En qué idiomas se imparte la asignatura Análisis Dinámico y Sísmico de Estructuras?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se imparte en Inglés y Castellano.,0.0,0.041322314049586785,0.0
+30,¿Cuál es la asignatura previa recomendada para cursar Análisis Dinámico y Sísmico de Estructuras?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se recomienda haber cursado Elementos Finitos.,0.0,0.041322314049586785,0.0
+31,¿Qué peso tiene el examen final (EM2) en la nota final de Análisis Dinámico y Sísmico de Estructuras?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",El examen final tiene un peso del 60% en la calificación final.,0.0,0.027173913043478264,0.0
+32,¿Qué habilidades de programación se recomiendan para la asignatura de Análisis Dinámico y Sísmico de Estructuras?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se recomiendan habilidades de programación en MATLAB.,0.0,0.038461538461538464,0.0
+33,¿Qué dos enfoques se utilizan en Metodologías de Desarrollo Web para abordar la gestión de proyectos?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se aborda desde dos enfoques: pesado/tradicional y ligero/ágil.,0.0,0.06756756756756757,0.0
+34,¿Cuál es el porcentaje mínimo de asistencia y participación activa requerido para la evaluación continua en Metodologías de Desarrollo Web?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Es necesario asistir y participar activamente en al menos el 70% de las clases.,0.0,0.024752475247524754,0.0
+35,¿Qué peso tiene el 'Test' en la evaluación progresiva de Metodologías de Desarrollo Web?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",El test tiene un peso del 15% en la nota final.,0.0,0.028571428571428577,0.0
+36,¿Qué nota mínima se exige en cada una de las dos prácticas obligatorias para poder promediar en Metodologías de Desarrollo Web?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Es obligatorio obtener al menos un 30% de la nota (3/10) en cada práctica.,0.0,0.022727272727272728,0.0
+37,¿Cuál es el carácter de la asignatura Álgebra en el Grado en Ingeniería del Software?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Es una asignatura de carácter básico.,0.0,0.041322314049586785,0.0
+38,¿Cómo se calcula la nota del examen (EX) en la evaluación progresiva de Álgebra?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se calcula mediante la fórmula EX = 20%EP1 + 20%EP2 + 60%EP3.,0.0,0.021834061135371178,0.0
+39,¿Qué algoritmo se estudia específicamente en el tema 5.2 de la asignatura Álgebra?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",Se estudia el algoritmo de ortogonalización de Gram-Schmidt.,0.0,0.03597122302158273,0.0
+40,¿Cómo es la planificación descrita en el cronograma de Álgebra en cuanto a la presencialidad?,"ERROR Mistral: API error occurred: Status 429. Body: {""object"":""error"",""message"":""Rate limit exceeded"",""type"":""rate_limited"",""param"":null,""code"":""1300"",""raw_status_code"":429}",La planificación está diseñada para ser 100% presencial.,0.0,0.033783783783783786,0.0

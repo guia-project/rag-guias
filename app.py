@@ -13,7 +13,7 @@ import warnings
 from abc import ABC, abstractmethod
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
-from mistralai import Mistral
+from mistralai.client import Mistral
 from groq import Groq
 
 #############################
