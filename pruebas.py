@@ -7,6 +7,7 @@ de procesamiento de lenguaje natural (NLP): BLEU, METEOR y ROUGE.
 
 # Librerías
 import json
+import time
 import pandas as pd
 import numpy as np
 import evaluate
@@ -49,6 +50,10 @@ def run_quality_test(dataset_path):
         # Flujo RAG (Retrieval + Generation)
         chunks, _ = search_retriever(es_client, embed_model, pregunta, top_k=5)
         prompt = build_rag_prompt(pregunta, chunks)
+
+        if i > 0:
+            time.sleep(3)  # Pequeña pausa para evitar saturar la API
+
         respuesta_ia = llm_engine.generate(prompt)
         
         # Cálculo de métricas individuales para esta pregunta

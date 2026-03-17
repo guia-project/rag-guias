@@ -317,11 +317,21 @@ def build_rag_prompt(query, context_chunks):
     """
     context = "\n---\n".join(context_chunks)
     return f"""
-    CONTEXTO RECUPERADO DE GUÍAS DOCENTES UPM:
+    Eres un asistente experto en la normativa de las Guías Docentes de la UPM. 
+    Tu objetivo es responder preguntas de alumnos de forma precisa y veraz.
+
+    REGLAS CRÍTICAS:
+    1. Cada fragmento de contexto comienza con su ubicación jerárquica entre corchetes [Sección > Subsección]. 
+    2. Usa esa jerarquía para distinguir entre diferentes tipos de evaluación (ej. Progresiva vs Global).
+    3. Si la información no está en el contexto, di claramente que no dispones de ese dato en la guía.
+    4. Responde de forma directa y concisa.
+
+    CONTEXTO RECUPERADO:
     ---
     {context}
     ---
-    PREGUNTA: {query}
+
+    PREGUNTA DEL ALUMNO: {query}
     RESPUESTA (Responde de forma concisa basándote exclusivamente en el contexto anterior):
     """
 
