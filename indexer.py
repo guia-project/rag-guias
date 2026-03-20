@@ -132,17 +132,19 @@ def convert_pdf_to_markdown(pdf_content_bytes):
 
 def get_chunks_from_markdown(markdown_content, semantic_chunker, recursive_chunker):
     """
-    Divide un texto largo en fragmentos (chunks) estructurados.
-
-    Utiliza una estrategia de 2 fases: primero divide semánticamente basándose 
-    en las cabeceras Markdown y luego asegura el tamaño máximo con un divisor de caracteres.
-    Inyecta la jerarquía del documento dentro del propio texto para no perder contexto.
+    Divide un texto largo en fragmentos (chunks) estructurados mediante una estrategia de triple fase: 
+    1) División estructural por cabeceras Markdown, 
+    2) División semántica por coherencia temática mediante embeddings, 
+    3) Refinamiento recursivo para garantizar que no se exceda el límite de tokens del modelo.
 
     Args:
-        markdown_content (str): Texto completo en formato Markdown.
+        markdown_content (str): Contenido en Markdown
+        semantic_chunker (SemanticChunker): Instancia para división temática.
+        recursive_chunker (RecursiveCharacterTextSplitter): Instancia para refinamiento por tamaño.
 
     Returns:
-        list: Lista de fragmentos de texto (strings).
+        list[dict]: Lista de diccionarios, donde cada uno contiene search_text (hijo para búsqueda) 
+        y parent_context (padre para respuesta).
     """
 
     # Parent-document retrieval
@@ -242,12 +244,13 @@ def process_and_index_document(client, model, resource, semantic_chunker, recurs
     """
     Ejecuta el pipeline RAG completo para un único documento.
 
-    Pasos: Descarga -> Conversión -> Chunking -> Vectorización -> Indexación Bulk.
+    Pasos: Descarga -> Conversión (Markdown) -> Triple Chunking (Estructural, Semántico, Recursivo) -> Vectorización -> Indexación Bulk con arquitectura Parent-Child.
 
     Args:
-        client (Elasticsearch): Cliente de conexión.
-        model (SentenceTransformer): Modelo para generar embeddings.
-        resource (dict): Datos del recurso obtenidos de CKAN.
+        client (Elasticsearch): Cliente de base de datos.
+        model (HuggingFaceEmbeddings): Modelo para vectorizar.
+        resource (dict): Metadatos del recurso de CKAN.
+        semantic_chunker/recursive_chunker: Objetos de segmentación.
     """
     doc_id = resource['id']
     doc_url = resource['url']

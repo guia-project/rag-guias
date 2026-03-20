@@ -275,8 +275,11 @@ def load_embedding_model():
 
 def search_retriever(client, model, query_text, top_k=5):
     """
-    Realiza una búsqueda para recuperar contexto relevante.
-    
+    Ejecuta un proceso de recuperación avanzado en dos pasos: 
+    1) Búsqueda Híbrida (combinando k-NN vectorial y coincidencia de texto BM25) para obtener candidatos 
+    2) Reranking mediante un modelo Cross-Encoder para reordenar los resultados por su relevancia semántica 
+    específica respecto a la consulta.
+
     Args:
         client (Elasticsearch): Cliente de la base de datos.
         model (SentenceTransformer): Modelo para vectorizar la consulta.
@@ -284,8 +287,9 @@ def search_retriever(client, model, query_text, top_k=5):
         top_k (int): Número de fragmentos a recuperar.
 
     Returns:
-        tuple: (Lista de fragmentos de texto, Lista de URLs de origen).
-    """
+        tuple[list[str], list[str]]: Tupla que contiene una lista de contextos padres (secciones completas) 
+            reordenados por relevancia y una lista de URLs de origen únicas.
+        """
     try:
         query_vector = model.encode(query_text).tolist()
         search_query = {
@@ -331,11 +335,11 @@ def search_retriever(client, model, query_text, top_k=5):
 
 def build_rag_prompt(query, context_chunks):
     """
-    Construye el prompt final inyectando los fragmentos de contexto recuperados.
-
+    Construye un prompt estructurado inyectando el contexto extendido (Parent Context) de las secciones recuperadas. 
+    Instruye al modelo para interpretar etiquetas jerárquicas y mitigar alucinaciones mediante el uso estricto de la información proporcionada.
     Args:
         query (str): La pregunta original del usuario.
-        context_chunks (list[str]): Fragmentos de texto obtenidos de Elasticsearch.
+        context_chunks (list[str]): Lista de Parent Documents (secciones enriquecidas con jerarquía) obtenidos tras el proceso de Reranking.
 
     Returns:
         str: Prompt estructurado listo para ser enviado al LLM.
