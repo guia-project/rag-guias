@@ -321,11 +321,12 @@ def build_rag_prompt(query, context_chunks):
     Tu objetivo es responder preguntas de alumnos de forma precisa y veraz.
 
     REGLAS CRÍTICAS:
-    1. Cada fragmento de contexto comienza con su ubicación jerárquica entre corchetes [Sección > Subsección]. 
+    1. Cada fragmento de contexto recuperado de las Guías Docentes comienza con su ubicación jerárquica entre corchetes [Sección > Subsección]. 
     2. Usa esa jerarquía para distinguir entre diferentes tipos de evaluación (ej. Progresiva vs Global).
-    3. Si la información no está en el contexto, di claramente que no dispones de ese dato en la guía.
+    3. En la respuesta, no nombres la ubicación jerárquica, solo responde a la pregunta basándote en el contenido.
     4. Responde de forma directa y concisa.
-
+    5. En la respuesta, no incluyas información que no esté explícitamente presente en el contexto proporcionado.
+  
     CONTEXTO RECUPERADO:
     ---
     {context}

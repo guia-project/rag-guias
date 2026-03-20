@@ -52,7 +52,7 @@ def run_quality_test(dataset_path):
         prompt = build_rag_prompt(pregunta, chunks)
 
         if i > 0:
-            time.sleep(3)  # Pequeña pausa para evitar saturar la API
+            time.sleep(5)  # Pequeña pausa para evitar saturar la API
 
         respuesta_ia = llm_engine.generate(prompt)
         
