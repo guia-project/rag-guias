@@ -13,8 +13,9 @@ import io
 import json
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
-from sentence_transformers import SentenceTransformer 
 from markitdown import MarkItDown
+from langchain_experimental.text_splitter import SemanticChunker
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 
 #############################
@@ -54,11 +55,10 @@ def connect_to_elastic():
         client = Elasticsearch(
             [{"host": ELASTIC_CONFIG["host"], "port": ELASTIC_CONFIG["port"], "scheme": ELASTIC_CONFIG["scheme"]}],
             verify_certs=False,
-            request_timeout=5 
+            request_timeout=60 
         )
         info = client.info()
         print("Conexión con Elasticsearch exitosa")
-        print(f"Versión del clúster: {info['version']['number']}")
         return client
     except Exception as e:
         print(f"Error conectando a Elasticsearch: {e}")
@@ -86,6 +86,8 @@ def create_index_mapping(client):
                 "document_url": { "type": "keyword" },
                 
                 "chunk_text": { "type": "text" }, 
+
+                "parent_context": { "type": "text" },
                 
                 "embedding_vector": {
                     "type": "dense_vector",
@@ -128,7 +130,7 @@ def convert_pdf_to_markdown(pdf_content_bytes):
         print(f"Error al convertir PDF con MarkItDown: {e}")
         return None
 
-def get_chunks_from_markdown(markdown_content):
+def get_chunks_from_markdown(markdown_content, semantic_chunker, recursive_chunker):
     """
     Divide un texto largo en fragmentos (chunks) estructurados.
 
@@ -142,6 +144,8 @@ def get_chunks_from_markdown(markdown_content):
     Returns:
         list: Lista de fragmentos de texto (strings).
     """
+
+    # Parent-document retrieval
     headers_to_split_on = [
         ("#", "Sección_Principal"),
         ("##", "Subseccion"),
@@ -149,28 +153,26 @@ def get_chunks_from_markdown(markdown_content):
     ]
 
     markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
-    md_header_splits = markdown_splitter.split_text(markdown_content)
+    sections = markdown_splitter.split_text(markdown_content)
 
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1500, 
-        chunk_overlap=150,
-        separators=["\n\n", ".\n", "\n", " ", ""]
-    )
-
-    final_splits = text_splitter.split_documents(md_header_splits)
 
     chunks = []
-    for doc in final_splits:
+    for doc in sections:
+        parent_text = doc.page_content
         context_path = " > ".join([f"{v}" for k, v in doc.metadata.items()])
 
-        if context_path:
-            chunk_text = f"{context_path}\n{doc.page_content}"
-        else:
-            chunk_text = doc.page_content
-        
-        chunks.append(chunk_text)
-    
+        semantic_splits = semantic_chunker.split_text(parent_text)
+
+        for s in semantic_splits:
+            final_s_chunks = recursive_chunker.split_text(s)
+            for sub_chunk in final_s_chunks:
+                chunks.append({
+                    "search_text": f"[{context_path}]\n{sub_chunk}",
+                    "parent_context": f"[{context_path}]\n{parent_text}"
+                })
     return chunks
+
+
 #################################
 ## 3. LÓGICA DEL SINCRONIZADOR ##
 #################################
@@ -199,7 +201,7 @@ def fetch_ckan_resources():
             response = requests.get(CKAN_API_URL, params=params)
             response.raise_for_status()
             data = response.json()
-            
+             
             if not data.get("success"):
                 break
 
@@ -236,7 +238,7 @@ def document_exists(client, document_id):
     except Exception:
         return False
 
-def process_and_index_document(client, model, resource):
+def process_and_index_document(client, model, resource, semantic_chunker, recursive_chunker):
     """
     Ejecuta el pipeline RAG completo para un único documento.
 
@@ -256,52 +258,53 @@ def process_and_index_document(client, model, resource):
     try:
         pdf_response = requests.get(doc_url, timeout=30)    
         pdf_response.raise_for_status()
-        pdf_content = pdf_response.content
+
+        # Procesamiento del PDF (MarkItDown + Chunking)
+        print("-> Procesando con MarkItDown...")
+        markdown_text = convert_pdf_to_markdown(pdf_response.content)    
+        if not markdown_text:
+            print("ERROR: MarkItDown no devolvió contenido.")
+            return 
+        
+        print("-> Dividiendo en Chunks (RCTS)...")
+        chunks = get_chunks_from_markdown(markdown_text, semantic_chunker, recursive_chunker)        
+        if not chunks:
+            print("ERROR: No se generaron chunks.")
+            return
+
+        search_texts = [item["search_text"] for item in chunks]
+
+        # Vectorización de los chunks con el modelo de embedding.
+        print(f"-> Vectorizando {len(search_texts)} chunks...")
+        embeddings = model.embed_documents(search_texts)
+
+
+        # Inserción masiva en Elasticsearch utilizando Bulk API
+        actions = []
+        for i, chunk in enumerate(chunks):
+            action = {
+                "_index": INDEX_NAME, 
+                "_source": {
+                    "document_id": doc_id,
+                    "document_url": doc_url,
+                    "chunk_text": chunk["search_text"],
+                    "parent_context": chunk["parent_context"],
+                    "embedding_vector": embeddings[i],
+                    "modified_date": mod_date
+                }
+            }
+            actions.append(action)
+
+        if actions:
+            bulk(client, actions, chunk_size=50, request_timeout=60) 
+            print(f"¡Éxito! Documento {doc_id} indexado.")
     except requests.RequestException as e:
         print(f"ERROR al descargar {doc_url}: {e}")
         return
 
-    # Procesamiento del PDF (MarkItDown + Chunking)
-    print("-> Procesando con MarkItDown...")
-    markdown_text = convert_pdf_to_markdown(pdf_content)    
-    if not markdown_text:
-        print("ERROR: MarkItDown no devolvió contenido.")
-        return 
     
-    print("-> Dividiendo en Chunks (RCTS)...")
-    chunks = get_chunks_from_markdown(markdown_text)        
-    if not chunks:
-        print("ERROR: No se generaron chunks.")
-        return
         
-    # Vectorización de los chunks con el modelo de embedding.
-    print(f"-> Vectorizando {len(chunks)} chunks...")
-    embeddings = model.encode(chunks, show_progress_bar=False)
-
-    # Inserción masiva en Elasticsearch utilizando Bulk API
-    actions = []
-    for i, chunk in enumerate(chunks):
-        action = {
-            "_index": INDEX_NAME, 
-            "_source": {
-                "document_id": doc_id,
-                "document_url": doc_url,
-                "chunk_text": chunk,
-                "embedding_vector": embeddings[i].tolist(),
-                "modified_date": mod_date
-            }
-        }
-        actions.append(action)
-
-    if actions:
-        print(f"-> Indexando {len(actions)} chunks en Elasticsearch...")
-        try:
-            bulk(client, actions, refresh=True) 
-            print(f"¡Éxito! Documento {doc_id} indexado.")
-        except Exception as e:
-            print(f"ERROR durante la indexación en lote (bulk): {e}")
-
-def run_sync_job(client, model):
+def run_sync_job(client, model, semantic_chunker, recursive_chunker):
     """
     Coordina el proceso de sincronización global.
 
@@ -312,35 +315,15 @@ def run_sync_job(client, model):
         client (Elasticsearch): Cliente de conexión.
         model (SentenceTransformer): Modelo para generar embeddings.
     """
-    print(f"\n--- [ {time.ctime()} ] ---")
-    print("Iniciando trabajo de sincronización de guías docentes...")
     
     ckan_resources = fetch_ckan_resources()
     if not ckan_resources:
         print("No se obtuvieron recursos de CKAN. Finalizando trabajo.")
         return
 
-    total = len(ckan_resources)
-    for i, resource in enumerate(ckan_resources):
-        doc_id = resource.get('id')
-        ckan_mod_date = resource.get('metadata_modified')
-        doc_name = resource.get('name', 'Nombre Desconocido')
-        
-        print(f"\nProcesando documento {i+1}/{total}: {doc_name} ({doc_id})")
-        
-        if not doc_id or not ckan_mod_date or resource.get('mimetype') != 'application/pdf':
-            print("-> Omitido (recurso sin ID, fecha, o no es PDF).")
-            continue
-        
-        print(f"\nRevisando {i+1}/{total}: {doc_name}")
-
-        if document_exists(client, doc_id):
-            print(f"-> YA EXISTE.")
-        else:
-            print(f"-> NUEVO DOCUMENTO DETECTADO. Procesando...")
-            process_and_index_document(client, model, resource)
-    
-    print("\n--- [ Trabajo de sincronización finalizado ] ---")
+    for res in ckan_resources:
+        if res.get('mimetype') == 'application/pdf' and not document_exists(client, res['id']):
+            process_and_index_document(client, model, res, semantic_chunker, recursive_chunker)
 
 ############################
 ## 4. EJECUCIÓN PRINCIPAL ##
@@ -359,16 +342,19 @@ if __name__ == "__main__":
         create_index_mapping(es_client)
 
         print(f"\nCargando modelo de embedding ({MODEL_NAME}) en memoria...")
-        embedding_model = SentenceTransformer(MODEL_NAME)
+        embedding_model = HuggingFaceEmbeddings(model_name=MODEL_NAME)
         print("Modelo de embedding cargado y listo.")
         
+        sem_chunker = SemanticChunker(embedding_model, breakpoint_threshold_type="percentile", breakpoint_threshold_amount=85)
+        rec_chunker = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=120, separators=["\n\n", "\n", ". ", " ", ""])
+
         # Primera ejecución
         print("\nEjecutando la primera sincronización al inicio...")
-        run_sync_job(es_client, embedding_model)
+        run_sync_job(es_client, embedding_model, sem_chunker, rec_chunker)
         
         # Programación de ejecuciones futuras cada 24 horas
         print("\nProgramando el trabajo para ejecutarse cada 24 horas...")
-        schedule.every(24).hours.do(run_sync_job, client=es_client, model=embedding_model)
+        schedule.every(24).hours.do(run_sync_job, client=es_client, model=embedding_model, semantic_chunker=sem_chunker, recursive_chunker=rec_chunker)
         
         print("El indexador está ahora en modo 'schedule'. Presiona Ctrl+C para salir.")
         while True:

@@ -13,6 +13,7 @@ import warnings
 from abc import ABC, abstractmethod
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
+from sentence_transformers import CrossEncoder
 from mistralai.client import Mistral
 from groq import Groq
 
@@ -29,6 +30,7 @@ except FileNotFoundError:
 # Variables de entorno extraídas de la configuración centralizada.
 INDEX_NAME = CONFIG["elastic"]["index_name"]
 MODEL_NAME = CONFIG["embeddings"]["model_name"]
+RERANKER_MODEL = CrossEncoder(CONFIG["reranker"]["model_name"])
 
 #######################################
 ## 1. DEFINICIÓN INTERFAZ ABSTRACTA ##
@@ -273,7 +275,7 @@ def load_embedding_model():
 
 def search_retriever(client, model, query_text, top_k=5):
     """
-    Realiza una búsqueda k-NN para recuperar contexto relevante.
+    Realiza una búsqueda para recuperar contexto relevante.
     
     Args:
         client (Elasticsearch): Cliente de la base de datos.
@@ -286,19 +288,42 @@ def search_retriever(client, model, query_text, top_k=5):
     """
     try:
         query_vector = model.encode(query_text).tolist()
-        knn_query = {
-            "knn": {
-                "field": "embedding_vector",
-                "query_vector": query_vector,
-                "k": top_k,
-                "num_candidates": 50
+        search_query = {
+            "query": {
+                "bool": {
+                    "should": [
+                        { "match": { "chunk_text": { "query": query_text, "boost": 1.0 } } },
+                        { "knn": { 
+                            "field": "embedding_vector", 
+                            "query_vector": query_vector, 
+                            "k": 20, 
+                            "num_candidates": 50, 
+                            "boost": 2.0 
+                        } }
+                    ]
+                }
             },
-            "_source": ["chunk_text", "document_url"]
+            # Recuperamos el contexto padre (Mejora Parent-Document)
+            "_source": ["chunk_text", "parent_context", "document_url"]
         }
-        response = client.search(index=INDEX_NAME, body=knn_query)
+        response = client.search(index=INDEX_NAME, body=search_query)
         hits = response['hits']['hits']
-        context_chunks = [hit['_source']['chunk_text'] for hit in hits]
-        sources = list(set(hit['_source']['document_url'] for hit in hits))
+        if not hits: return [], []
+
+        # Mejora Reranking
+        documents = [hit['_source'] for hit in hits]
+        pairs = [[query_text, doc['chunk_text']] for doc in documents]
+        scores = RERANKER_MODEL.predict(pairs)
+
+        for i, score in enumerate(scores):
+            documents[i]['rerank_score'] = score
+            
+        # Ordenamos por la puntuación del reranker
+        ranked_docs = sorted(documents, key=lambda x: x['rerank_score'], reverse=True)
+
+        # Devolvemos el contexto PADRE (Parent Context) para que el LLM tenga toda la información
+        context_chunks = [doc['parent_context'] for doc in ranked_docs[:top_k]]
+        sources = list(set(doc['document_url'] for doc in ranked_docs[:top_k]))
         return context_chunks, sources
     except Exception as e:
         print(f"Error búsqueda: {e}")
@@ -317,15 +342,18 @@ def build_rag_prompt(query, context_chunks):
     """
     context = "\n---\n".join(context_chunks)
     return f"""
-    Eres un asistente experto en la normativa de las Guías Docentes de la UPM. 
-    Tu objetivo es responder preguntas de alumnos de forma precisa y veraz.
+    Eres el Asistente Oficial de Guías Docentes de la UPM. Tu misión es proporcionar respuestas técnicas, precisas y veraces basadas exclusivamente en la normativa de la asignatura proporcionada.
 
-    REGLAS CRÍTICAS:
-    1. Cada fragmento de contexto recuperado de las Guías Docentes comienza con su ubicación jerárquica entre corchetes [Sección > Subsección]. 
-    2. Usa esa jerarquía para distinguir entre diferentes tipos de evaluación (ej. Progresiva vs Global).
-    3. En la respuesta, no nombres la ubicación jerárquica, solo responde a la pregunta basándote en el contenido.
-    4. Responde de forma directa y concisa.
-    5. En la respuesta, no incluyas información que no esté explícitamente presente en el contexto proporcionado.
+    INSTRUCCIONES DE PROCESAMIENTO:
+    1. El contexto está dividido en secciones que comienzan con una ruta jerárquica entre corchetes, por ejemplo: [X. Sección > X.Y. Subsección].
+    2. Usa estas etiquetas para contextualizar tu respuesta. Si el usuario pregunta por "evaluación", distingue claramente entre lo que dice la sección de "Evaluación Progresiva" y la "Evaluación Global".
+    3. Si la información en los fragmentos es contradictoria o pertenece a secciones distintas, explica la diferencia al alumno.
+    4. Prohibido inventar datos (alucinaciones). Si la respuesta no está en el contexto, di: "Lo siento, esa información específica no consta en la guía docente actual".
+
+    REGLAS DE FORMATO:
+    - Responde de forma estructurada (usa viñetas si hay varios requisitos).
+    - Sé directo. No uses frases de relleno como "Basado en el contexto proporcionado...".
+    - Si mencionas un porcentaje o fecha, indica a qué sección o convocatoria pertenece.
   
     CONTEXTO RECUPERADO:
     ---
