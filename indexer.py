@@ -130,7 +130,7 @@ def convert_pdf_to_markdown(pdf_content_bytes):
         print(f"Error al convertir PDF con MarkItDown: {e}")
         return None
 
-def get_chunks_from_markdown(markdown_content, semantic_chunker, recursive_chunker):
+def get_chunks_from_markdown(markdown_content, semantic_chunker, recursive_chunker, doc_name):
     """
     Divide un texto largo en fragmentos (chunks) estructurados mediante una estrategia de triple fase: 
     1) División estructural por cabeceras Markdown, 
@@ -169,8 +169,8 @@ def get_chunks_from_markdown(markdown_content, semantic_chunker, recursive_chunk
             final_s_chunks = recursive_chunker.split_text(s)
             for sub_chunk in final_s_chunks:
                 chunks.append({
-                    "search_text": f"[{context_path}]\n{sub_chunk}",
-                    "parent_context": f"[{context_path}]\n{parent_text}"
+                    "search_text": f"[Asignatura: {doc_name}] [{context_path}]\n{sub_chunk}",
+                    "parent_context": f"[Asignatura: {doc_name}] [{context_path}]\n{parent_text}"
                 })
     return chunks
 
@@ -256,8 +256,10 @@ def process_and_index_document(client, model, resource, semantic_chunker, recurs
     doc_url = resource['url']
     mod_date = resource['metadata_modified']
     
+    doc_name = resource.get('name', resource.get('title', 'Guía Docente'))
+
     # Descarga del PDF.
-    print(f"-> Descargando: {doc_url}")
+    print(f"-> Descargando: {doc_name}, ({doc_url})")
     try:
         pdf_response = requests.get(doc_url, timeout=30)    
         pdf_response.raise_for_status()
@@ -270,7 +272,7 @@ def process_and_index_document(client, model, resource, semantic_chunker, recurs
             return 
         
         print("-> Dividiendo en Chunks (RCTS)...")
-        chunks = get_chunks_from_markdown(markdown_text, semantic_chunker, recursive_chunker)        
+        chunks = get_chunks_from_markdown(markdown_text, semantic_chunker, recursive_chunker, doc_name)        
         if not chunks:
             print("ERROR: No se generaron chunks.")
             return

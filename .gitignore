@@ -15,3 +15,6 @@ __pycache__/
 .vscode/
 
 config.json
+
+# Comprobación de los documentos en la base de datos
+check_db.py

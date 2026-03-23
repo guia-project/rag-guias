@@ -48,7 +48,7 @@ def run_quality_test(dataset_path):
         referencia = item["referencia"]
         
         # Flujo RAG (Retrieval + Generation)
-        chunks, _ = search_retriever(es_client, embed_model, pregunta, top_k=5)
+        chunks, _ = search_retriever(es_client, embed_model, pregunta, top_k=10)
         prompt = build_rag_prompt(pregunta, chunks)
 
         if i > 0:

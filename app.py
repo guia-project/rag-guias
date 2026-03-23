@@ -8,6 +8,7 @@ y los diferentes proveedores de Modelos de Lenguaje (LLM).
 """
 # Librerías
 import json
+import time
 import requests
 import warnings
 from abc import ABC, abstractmethod
@@ -16,6 +17,7 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers import CrossEncoder
 from mistralai.client import Mistral
 from groq import Groq
+from langchain_huggingface import HuggingFaceEmbeddings
 
 #############################
 ## 0. CONFIGURACIÓN GLOBAL ##
@@ -86,20 +88,27 @@ class MistralProvider(LLMProvider):
         """
         if not self.api_key:
             return "ERROR: Clave MISTRAL_API_KEY no configurada."
-        try:
-            sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
-            
-            response = self.client.chat.complete(
-                model=self.model_name,
-                messages=[
-                    {"role": "system", "content": sys_instr},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.0
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"ERROR Mistral: {e}"
+        max_retries = 3
+        for i in range(max_retries):
+            try:
+                sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
+                    
+                response = self.client.chat.complete(
+                    model=self.model_name,
+                    messages=[
+                        {"role": "system", "content": sys_instr},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.0
+                )
+                return response.choices[0].message.content
+            except Exception as e:
+                if "429" in str(e):
+                    wait_time = (i + 1) * 20
+                    time.sleep(wait_time)
+                    continue
+                return f"ERROR Mistral: {e}"
+        return "ERROR Mistral: Máximo de reintentos alcanzado debido a limitaciones de tasa."
 
 class GroqProvider(LLMProvider):
     """Implementación del proveedor Groq."""
@@ -268,12 +277,12 @@ def load_embedding_model():
     """
     print(f"Cargando modelo de embedding...")
     try:
-        return SentenceTransformer(MODEL_NAME)
+        return HuggingFaceEmbeddings(model_name=MODEL_NAME)
     except Exception as e:
         print(f"Error al cargar modelo: {e}")
         return None
 
-def search_retriever(client, model, query_text, top_k=5):
+def search_retriever(client, model, query_text, top_k=10):
     """
     Ejecuta un proceso de recuperación avanzado en dos pasos: 
     1) Búsqueda Híbrida (combinando k-NN vectorial y coincidencia de texto BM25) para obtener candidatos 
@@ -291,20 +300,22 @@ def search_retriever(client, model, query_text, top_k=5):
             reordenados por relevancia y una lista de URLs de origen únicas.
         """
     try:
-        query_vector = model.encode(query_text).tolist()
+        query_vector = model.embed_query(query_text)
         search_query = {
+            "size": 100,
             "query": {
                 "bool": {
                     "should": [
                         { "match": { "chunk_text": { "query": query_text, "boost": 1.0 } } },
+                        { "match_phrase": { "chunk_text": { "query": query_text, "boost": 5.0 } } },
                         { "knn": { 
                             "field": "embedding_vector", 
-                            "query_vector": query_vector, 
-                            "k": 20, 
-                            "num_candidates": 50, 
+                            "query_vector": query_vector,  
+                            "num_candidates": 200, 
                             "boost": 2.0 
                         } }
-                    ]
+                    ],
+                    "minimum_should_match": 1
                 }
             },
             # Recuperamos el contexto padre (Mejora Parent-Document)
@@ -325,10 +336,43 @@ def search_retriever(client, model, query_text, top_k=5):
         # Ordenamos por la puntuación del reranker
         ranked_docs = sorted(documents, key=lambda x: x['rerank_score'], reverse=True)
 
-        # Devolvemos el contexto PADRE (Parent Context) para que el LLM tenga toda la información
-        context_chunks = [doc['parent_context'] for doc in ranked_docs[:top_k]]
-        sources = list(set(doc['document_url'] for doc in ranked_docs[:top_k]))
-        return context_chunks, sources
+        # Para no saturar la API
+        MAX_CHARS = 10000
+        current_chars = 0
+        final_contexts = []
+        final_sources = []
+        seen_contexts = set() # Para evitar contextos duplicados
+
+        for doc in ranked_docs:
+            parent = doc['parent_context']
+            child = doc['chunk_text']
+            if parent in seen_contexts:
+                continue
+
+            # Caso 1: Cabe la sección completa (Parent)
+            if current_chars + len(parent) < MAX_CHARS:
+                final_contexts.append(parent)
+                seen_contexts.add(parent)
+                current_chars += len(parent)
+                final_sources.append(doc['document_url'])
+            
+            # Caso 2: No cabe la sección, pero cabe el fragmento corto (Child)
+            elif current_chars + len(child) < MAX_CHARS:
+                final_contexts.append(child)
+                current_chars += len(child)
+                final_sources.append(doc['document_url'])
+                # Si metemos el corto, paramos aquí para no saturar
+                break
+            
+            # Caso 3: Ya no cabe nada más
+            else:
+                break
+
+            if len(final_contexts) >= top_k:
+                break
+
+        return final_contexts, list(set(final_sources))
+
     except Exception as e:
         print(f"Error búsqueda: {e}")
         return [], []
@@ -340,17 +384,16 @@ def build_rag_prompt(query, context_chunks):
     Args:
         query (str): La pregunta original del usuario.
         context_chunks (list[str]): Lista de Parent Documents (secciones enriquecidas con jerarquía) obtenidos tras el proceso de Reranking.
-
     Returns:
         str: Prompt estructurado listo para ser enviado al LLM.
     """
-    context = "\n---\n".join(context_chunks)
+    context = "\n\n".join(context_chunks)
     return f"""
-    Eres el Asistente Oficial de Guías Docentes de la UPM. Tu misión es proporcionar respuestas técnicas, precisas y veraces basadas exclusivamente en la normativa de la asignatura proporcionada.
+    Eres el Asistente Oficial de Guías Docentes de la UPM. Tu misión es responder de forma técnica y unificada.
 
     INSTRUCCIONES DE PROCESAMIENTO:
-    1. El contexto está dividido en secciones que comienzan con una ruta jerárquica entre corchetes, por ejemplo: [X. Sección > X.Y. Subsección].
-    2. Usa estas etiquetas para contextualizar tu respuesta. Si el usuario pregunta por "evaluación", distingue claramente entre lo que dice la sección de "Evaluación Progresiva" y la "Evaluación Global".
+    1. El contexto está dividido en bloques. Cada bloque indica primero a qué asignatura pertenece y luego su ruta jerárquica. Ejemplo: [Asignatura: Nombre de la Asignatura] [X. Sección > X.Y. Subsección].
+    2. Usa estas etiquetas para asegurar que estás respondiendo sobre la asignatura correcta que pide el usuario.
     3. Si la información en los fragmentos es contradictoria o pertenece a secciones distintas, explica la diferencia al alumno.
     4. Prohibido inventar datos (alucinaciones). Si la respuesta no está en el contexto, di: "Lo siento, esa información específica no consta en la guía docente actual".
 
@@ -358,14 +401,12 @@ def build_rag_prompt(query, context_chunks):
     - Responde de forma estructurada (usa viñetas si hay varios requisitos).
     - Sé directo. No uses frases de relleno como "Basado en el contexto proporcionado...".
     - Si mencionas un porcentaje o fecha, indica a qué sección o convocatoria pertenece.
-  
+
     CONTEXTO RECUPERADO:
-    ---
     {context}
-    ---
 
     PREGUNTA DEL ALUMNO: {query}
-    RESPUESTA (Responde de forma concisa basándote exclusivamente en el contexto anterior):
+    RESPUESTA FINAL:
     """
 
 ########################
@@ -399,7 +440,7 @@ if __name__ == "__main__":
             if user_query.lower() in ['salir', 'exit']: break
             
             print("... recuperando contexto ...")
-            chunks, sources = search_retriever(es_client, embedding_model, user_query, top_k=8)
+            chunks, sources = search_retriever(es_client, embedding_model, user_query, top_k=10)
             
             if not chunks:
                 print("No se encontró información relevante.")
