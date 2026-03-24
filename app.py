@@ -137,20 +137,27 @@ class GroqProvider(LLMProvider):
         """
         if not self.api_key:
             return "ERROR: Clave GROQ_API_KEY no configurada."
-        try:
-            sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
-            
-            chat = self.client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": sys_instr},
-                    {"role": "user", "content": prompt}
-                ],
-                model=self.model_name,
-                temperature=0.0
-            )
-            return chat.choices[0].message.content
-        except Exception as e:
-            return f"ERROR Groq: {e}"
+        max_retries = 3
+        for i in range(max_retries):
+            try:
+                sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
+                
+                chat = self.client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": sys_instr},
+                        {"role": "user", "content": prompt}
+                    ],
+                    model=self.model_name,
+                    temperature=0.0
+                )
+                return chat.choices[0].message.content
+            except Exception as e:
+                if "429" in str(e) or "rate limit" in str(e).lower():
+                    wait_time = (i + 1) * 20
+                    time.sleep(wait_time)
+                    continue
+                return f"ERROR Groq: {e}"
+        return "ERROR Groq: Máximo de reintentos alcanzado debido a limitaciones de tasa."
 
 class OllamaProvider(LLMProvider):
     """Implementación del proveedor Ollama para ejecución local."""
@@ -176,24 +183,31 @@ class OllamaProvider(LLMProvider):
         Returns:
             str: Respuesta generada por el modelo local.
         """
-        try:
-            sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto.\n\n"
-            full_prompt = sys_instr + prompt
-            response = requests.post(
-                self.api_url,
-                json={
-                    "model": self.model_name, 
-                    "prompt": full_prompt, 
-                    "stream": False,
-                    "options": {"temperature": 0.0}
-                },
-                timeout=300
-            )
-            response.raise_for_status()
-            return response.json()["response"]
-        except Exception as e:
-            return f"ERROR Ollama: {e}"
-
+        max_retries = 3
+        for i in range(max_retries):
+            try:
+                sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto.\n\n"
+                full_prompt = sys_instr + prompt
+                response = requests.post(
+                    self.api_url,
+                    json={
+                        "model": self.model_name, 
+                        "prompt": full_prompt, 
+                        "stream": False,
+                        "options": {"temperature": 0.0}
+                    },
+                    timeout=300
+                )
+                response.raise_for_status()
+                return response.json()["response"]
+            except Exception as e:
+                if "429" in str(e) or "503" in str(e) or "Timeout" in str(type(e).__name__):
+                    wait_time = (i + 1) * 5
+                    print(f"Ollama ocupado o timeout. Reintentando en {wait_time}s... (Intento {i+1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
+                return f"ERROR Ollama: {e}"
+        return "ERROR Ollama: Máximo de reintentos alcanzado o servidor local no disponible."
 #############################
 ## 3. FACTORÍA DE OBJETOS  ##
 #############################
