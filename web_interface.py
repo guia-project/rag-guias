@@ -138,15 +138,19 @@ if prompt := st.chat_input("Pregunta sobre una asignatura..."):
     # Genera respuesta del asistente.
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
-        
-        with st.spinner('Buscando en las guías docentes...'):
-            try:
+        try:
+            with st.spinner('Optimizando consulta...'):
+                rewrite_prompt = "Extrae ÚNICAMENTE las palabras clave de esta pregunta (entidades, nombre de la asignatura, conceptos). NO uses frases completas, comillas, ni signos de puntuación. Separa las palabras por espacios."
+                rewritten_query = llm_engine.generate(prompt, system_prompt=rewrite_prompt).strip()
+                
+            with st.spinner('Buscando en las guías docentes...'):    
                 # 1. Recuperación (Retrieve)
                 chunks, sources = search_retriever(
                     es_client, 
                     embedding_model, 
-                    prompt, 
-                    top_k=5 
+                    prompt,
+                    rewritten_query, 
+                    top_k=10 
                 )
                 
                 if not chunks:
@@ -173,5 +177,5 @@ if prompt := st.chat_input("Pregunta sobre una asignatura..."):
                     "sources": sources
                 })
 
-            except Exception as e:
+        except Exception as e:
                 st.error(f"Ocurrió un error: {e}")
