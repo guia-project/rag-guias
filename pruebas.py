@@ -41,20 +41,27 @@ def run_quality_test(dataset_path):
 
     results_list = []
 
+    rewrite_prompt = "Extrae ÚNICAMENTE las palabras clave de esta pregunta (entidades, nombre de la asignatura, conceptos). NO uses frases completas, comillas, ni signos de puntuación. Separa las palabras por espacios."
+
     print(f"Iniciando evaluación sobre {len(dataset)} preguntas...")
 
     for i, item in enumerate(dataset):
         pregunta = item["pregunta"]
         referencia = item["referencia"]
+
+        rewritten_query = llm_engine.generate(pregunta, system_prompt=rewrite_prompt).strip()
         
         # Flujo RAG (Retrieval + Generation)
-        chunks, _ = search_retriever(es_client, embed_model, pregunta, top_k=10)
-        prompt = build_rag_prompt(pregunta, chunks)
+        chunks, _ = search_retriever(es_client, embed_model, pregunta, rewritten_query, top_k=10)
 
-        if i > 0:
+        if chunks:
+            prompt = build_rag_prompt(pregunta, chunks)
             time.sleep(5)  # Pequeña pausa para evitar saturar la API
+            respuesta_ia = llm_engine.generate(prompt)
+        else:
+            respuesta_ia = "Lo siento, esa información específica no consta en la guía docente actual."
 
-        respuesta_ia = llm_engine.generate(prompt)
+        
         
         # Cálculo de métricas individuales para esta pregunta
         # (Usamos listas de un solo elemento para evaluar pregunta por pregunta)

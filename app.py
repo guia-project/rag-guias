@@ -61,6 +61,8 @@ class LLMProvider(ABC):
 ## 2. IMPLEMENTACIONES DE PROVEEDORES  ##
 #########################################
 
+DEFAULT_SYS_PROMPT = "Eres el Asistente Oficial de Guías Docentes de la UPM. Responde basándote SOLO en el contexto."
+
 class MistralProvider(LLMProvider):
     """Implementación del proveedor Mistral AI."""
 
@@ -76,7 +78,7 @@ class MistralProvider(LLMProvider):
         self.model_name = model_name
         self.client = Mistral(api_key=self.api_key)
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, system_prompt: str = None) -> str:
         """
         Envía el prompt a la API de Mistral con instrucciones de sistema.
 
@@ -91,7 +93,7 @@ class MistralProvider(LLMProvider):
         max_retries = 3
         for i in range(max_retries):
             try:
-                sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
+                sys_instr = system_prompt if system_prompt else DEFAULT_SYS_PROMPT
                     
                 response = self.client.chat.complete(
                     model=self.model_name,
@@ -125,7 +127,7 @@ class GroqProvider(LLMProvider):
         self.model_name = model_name
         self.client = Groq(api_key=self.api_key)
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, system_prompt: str = None) -> str:
         """
         Realiza una petición de chat completion a la API de Groq.
 
@@ -140,7 +142,7 @@ class GroqProvider(LLMProvider):
         max_retries = 3
         for i in range(max_retries):
             try:
-                sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto."
+                sys_instr = system_prompt if system_prompt else DEFAULT_SYS_PROMPT
                 
                 chat = self.client.chat.completions.create(
                     messages=[
@@ -173,7 +175,7 @@ class OllamaProvider(LLMProvider):
         self.api_url = api_url
         self.model_name = model_name
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, system_prompt: str = None) -> str:
         """
         Envía una petición POST al servicio local de Ollama.
 
@@ -186,7 +188,7 @@ class OllamaProvider(LLMProvider):
         max_retries = 3
         for i in range(max_retries):
             try:
-                sys_instr = "Eres un Asistente de Guías Docentes. Responde basándote SOLO en el contexto.\n\n"
+                sys_instr = system_prompt if system_prompt else DEFAULT_SYS_PROMPT
                 full_prompt = sys_instr + prompt
                 response = requests.post(
                     self.api_url,
@@ -208,6 +210,7 @@ class OllamaProvider(LLMProvider):
                     continue
                 return f"ERROR Ollama: {e}"
         return "ERROR Ollama: Máximo de reintentos alcanzado o servidor local no disponible."
+
 #############################
 ## 3. FACTORÍA DE OBJETOS  ##
 #############################
@@ -296,7 +299,7 @@ def load_embedding_model():
         print(f"Error al cargar modelo: {e}")
         return None
 
-def search_retriever(client, model, query_text, top_k=10):
+def search_retriever(client, model, original_query, rewritten_query, top_k=10):
     """
     Ejecuta un proceso de recuperación avanzado en dos pasos: 
     1) Búsqueda Híbrida (combinando k-NN vectorial y coincidencia de texto BM25) para obtener candidatos 
@@ -314,14 +317,21 @@ def search_retriever(client, model, query_text, top_k=10):
             reordenados por relevancia y una lista de URLs de origen únicas.
         """
     try:
-        query_vector = model.embed_query(query_text)
+        query_vector = model.embed_query(original_query)
         search_query = {
             "size": 100,
             "query": {
                 "bool": {
                     "should": [
-                        { "match": { "chunk_text": { "query": query_text, "boost": 1.0 } } },
-                        { "match_phrase": { "chunk_text": { "query": query_text, "boost": 5.0 } } },
+                        { "match": {
+                            "chunk_text": {
+                                "query": rewritten_query, 
+                                "boost": 5.0, 
+                                "operator": "and"
+                                }
+                            } 
+                        },
+                        { "match": { "chunk_text": { "query": original_query, "boost": 1.0 } } },                        
                         { "knn": { 
                             "field": "embedding_vector", 
                             "query_vector": query_vector,  
@@ -341,7 +351,7 @@ def search_retriever(client, model, query_text, top_k=10):
 
         # Mejora Reranking
         documents = [hit['_source'] for hit in hits]
-        pairs = [[query_text, doc['chunk_text']] for doc in documents]
+        pairs = [[original_query, doc['chunk_text']] for doc in documents]
         scores = RERANKER_MODEL.predict(pairs)
 
         for i, score in enumerate(scores):
@@ -403,24 +413,23 @@ def build_rag_prompt(query, context_chunks):
     """
     context = "\n\n".join(context_chunks)
     return f"""
-    Eres el Asistente Oficial de Guías Docentes de la UPM. Tu misión es responder de forma técnica y unificada.
+    Eres el Asistente Oficial de Guías Docentes de la UPM. Tu misión es responder a las dudas de los alumnos de forma clara y directa.
 
     INSTRUCCIONES DE PROCESAMIENTO:
-    1. El contexto está dividido en bloques. Cada bloque indica primero a qué asignatura pertenece y luego su ruta jerárquica. Ejemplo: [Asignatura: Nombre de la Asignatura] [X. Sección > X.Y. Subsección].
-    2. Usa estas etiquetas para asegurar que estás respondiendo sobre la asignatura correcta que pide el usuario.
-    3. Si la información en los fragmentos es contradictoria o pertenece a secciones distintas, explica la diferencia al alumno.
-    4. Prohibido inventar datos (alucinaciones). Si la respuesta no está en el contexto, di: "Lo siento, esa información específica no consta en la guía docente actual".
+    1. El contexto está dividido en bloques con etiquetas jerárquicas. Ejemplo: [Asignatura: Nombre] [X. Sección > X.Y. Subsección].
+    2. Usa estas etiquetas INTERNAMENTE para asegurar que la información corresponde a la asignatura de la pregunta, pero ESTÁ ESTRICTAMENTE PROHIBIDO incluir la etiqueta [Asignatura: X], mencionar el nombre de la asignatura, o mencionar las secciones jerárquicas en tu respuesta.
+    3. Ve directo al grano. Empieza a responder inmediatamente con el dato solicitado. No uses frases de relleno como "Según el contexto", "En la asignatura tal", o "En la sección cual".
+    4. Prohibido inventar datos (alucinaciones). Si la respuesta no está en el contexto, di EXACTAMENTE: "Lo siento, esa información específica no consta en la guía docente actual."
 
     REGLAS DE FORMATO:
-    - Responde de forma estructurada (usa viñetas si hay varios requisitos).
-    - Sé directo. No uses frases de relleno como "Basado en el contexto proporcionado...".
-    - Si mencionas un porcentaje o fecha, indica a qué sección o convocatoria pertenece.
+    - Responde de forma estructurada (usa viñetas si es una lista de requisitos o temas).
+    - Sé muy conciso. Da solo el dato o explicación que pide el alumno.
 
     CONTEXTO RECUPERADO:
     {context}
 
     PREGUNTA DEL ALUMNO: {query}
-    RESPUESTA FINAL:
+    RESPUESTA FINAL (Pura y directa, sin mencionar etiquetas ni nombre de asignatura):
     """
 
 ########################
@@ -453,8 +462,12 @@ if __name__ == "__main__":
             user_query = input("\n[Pregunta]: ")
             if user_query.lower() in ['salir', 'exit']: break
             
+            rewrite_prompt = "Extrae ÚNICAMENTE las palabras clave de esta pregunta (entidades, nombre de la asignatura, conceptos). NO uses frases completas, comillas, ni signos de puntuación. Separa las palabras por espacios."
+            rewritten_query = llm_engine.generate(user_query, system_prompt=rewrite_prompt)
+            print(f"[Keywords extraídas]: {rewritten_query.strip()}")
+
             print("... recuperando contexto ...")
-            chunks, sources = search_retriever(es_client, embedding_model, user_query, top_k=10)
+            chunks, sources = search_retriever(es_client, embedding_model, user_query, rewritten_query.strip(), top_k=10)
             
             if not chunks:
                 print("No se encontró información relevante.")

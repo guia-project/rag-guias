@@ -1,0 +1,82 @@
+﻿ID,Pregunta,Respuesta_IA,Referencia_Humana,BLEU,METEOR,ROUGE-L
+1,¿Cuál es la capital de España?,"Lo siento, esa información específica no consta en la guía docente actual.","Lo siento, no he encontrado información sobre la capital de España en las guías docentes proporcionadas.",0.0,0.47073863636363633,0.35294117647058826
+2,¿Cuál es el objetivo de la asignatura Calidad del Software?,"Formar al estudiante en los principios, técnicas y métricas para garantizar la calidad del software, abarcando su historia, evolución, técnicas aplicables, medición, costes y aspectos éticos asociados.","Presentar técnicas y mediciones de calidad, modelos y procesos para la gestión de la calidad en el ámbito de la ingeniería del software.",0.0,0.2651648106193561,0.27586206896551724
+3,¿Qué temas se estudian en el bloque de Análisis de Software de Fundamentos de Ingeniería del Software?,"Lo siento, esa información específica no consta en la guía docente actual.","Introducción al análisis, modelado estructural mediante diagramas de clases, modelado de comportamiento con diagramas de estados, actividad y secuencia, y trazabilidad de requisitos a análisis.",0.0,0.035211267605633804,0.09302325581395349
+4,¿Cómo se calcula la nota final en Fundamentos de Economía y Empresa mediante evaluación progresiva?,"- **Prácticas individuales**: 10% de la calificación final.
+- **Participación activa en clases teóricas, prácticas y exposiciones del Trabajo Grupal**: 10% de la calificación final.
+- **Resto de la evaluación (80%)**: Se calculará mediante pruebas escritas u otros instrumentos de evaluación que se especificarán durante el curso.","La calificación final es la suma ponderada de: prácticas individuales (10%), entrega y presentación del Trabajo Grupal (15%) y una prueba global (75%).",0.0,0.42373080492991677,0.25316455696202533
+5,¿Cuál es la fórmula para obtener la nota de teoría (ET) en Programación Orientada a Objetos?,ET = ET1 * 0.40 + ET2 * 0.60,"ET = ET1 * 0.40 + ET2 * 0.60, donde ET1 es el examen intermedio y ET2 es el examen final de la convocatoria ordinaria.",0.1353352832366127,0.32652361356065057,0.4666666666666667
+6,¿Qué capacidad pretende dotar al alumno la asignatura Contaminación de Suelos y Aguas Subterráneas?,"- Detectar y diagnosticar problemas de afección a suelos y aguas subterráneas.
+- Diseñar y supervisar actuaciones para evaluar el alcance e implicaciones de la contaminación.","Capacidad de detectar y diagnosticar problemas de afección a los suelos y las aguas subterráneas, así como diseñar y supervisar las actuaciones para evaluar su alcance e implicaciones.",0.2850959935683634,0.7295961736085561,0.7796610169491526
+7,¿Cuáles son las asignaturas previas recomendadas para cursar Calidad del Software?,"- Bases De Datos
+- Ingeniería De Requisitos Y Modelado
+- Fundamentos De Ingeniería Del Software
+- Ingeniería Del Proceso Software Y Construcción",Se recomienda haber cursado previamente Fundamentos de Ingeniería del Software.,0.0,0.3655737704918033,0.3529411764705882
+8,¿Qué condiciones debe cumplir un estudiante para aprobar Fundamentos de Ingeniería del Software en evaluación ordinaria?,"- Nota del examen final (EF) ≥ 4.
+- Nota de cada bloque (NT, NP) ≥ 5.
+- Nota final (NF) ≥ 5.
+- Actividades opcionales: suman décimas adicionales a NT y NP, pero no eximen de cumplir los requisitos anteriores.","La nota del examen final debe ser igual o mayor a 4, y la nota de cada bloque (teoría y práctica) así como la nota final deben ser iguales o mayores a 5.",0.07722895418120557,0.37750821450218525,0.34285714285714286
+9,¿Qué temas de Macroeconomía se incluyen en Fundamentos de Economía y Empresa?,"- Concepto
+- Variables macroeconómicas
+- Los instrumentos de política macroeconómica
+- Oferta y demanda agregadas
+- Renta Nacional y otras macromagnitudes","Concepto de macroeconomía, variables macroeconómicas, instrumentos de política macroeconómica, oferta y demanda agregadas, y Renta Nacional y otras macromagnitudes.",0.3078385842030969,0.6441209296218487,0.8837209302325583
+10,¿Qué porcentaje de la nota final representa la evaluación de prácticas en Programación Orientada a Objetos?,70%,La evaluación de prácticas representa el 70% de la nota final de la asignatura.,0.0,0.12842465753424656,0.11764705882352941
+11,¿Cuál es el temario de la asignatura Contaminación de Suelos y Aguas Subterráneas?,"- **Temas principales:**
+  - Detección y diagnóstico de problemas de contaminación en suelos y aguas subterráneas.
+  - Diseño y supervisión de actuaciones para evaluar el alcance e implicaciones de la contaminación.
+  - Evaluación de riesgos y técnicas de remediación.","Marco legal y técnico, legislación de suelos, partición de contaminantes, flujo de aguas subterráneas, transporte de contaminantes, fases libres no acuosas, diseño de muestreo, perforación, muestreo de campo y control de calidad.",0.0,0.1896051433773327,0.3132530120481927
+12,¿Cuáles son los dos escenarios de evaluación global en Calidad del Software?,"- **Escenario 1**: Estudiantes que han superado el 70% de las actividades prácticas. La evaluación global usa las mismas pruebas y pesos que la evaluación progresiva.
+- **Escenario 2**: Estudiantes que no han superado el 70% de las actividades prácticas. La evaluación global incluye:
+  - **Parte teoría**:
+    - Examen temas 1, 2, 3, 4 (40% de peso, sin nota mínima especificada).
+    - Examen temas 5, 6, 7 (40% de peso, sin nota mínima especificada).
+  - **Parte práctica**: Actividades prácticas (20% de peso, sin nota mínima especificada).",Escenario 1 para estudiantes que superaron el 70% de las actividades prácticas y Escenario 2 para aquellos que no alcanzaron ese porcentaje.,0.05613756223965741,0.3792805154516168,0.2807017543859649
+13,¿Qué bibliografía se recomienda para el Lenguaje Unificado de Modelado (UML) en Fundamentos de Ingeniería del Software?,"- *Booch, G.; Rumbaugh, J.; Jacobson, I.*: ""El Lenguaje Unificado de Modelado. UML, Object Technology Series"", 2ª Edición, Addison-Wesley, 2006.
+- *UML: The Unified Modeling Language Website* (Object Management Group - OMG): [http://www.uml.org/](http://www.uml.org/)","El libro de Booch, Rumbaugh y Jacobson 'El Lenguaje Unificado de Modelado UML' y el sitio web oficial de UML del Object Management Group.",0.050121719331253915,0.36233766233766235,0.4126984126984126
+14,¿En qué consiste la evaluación extraordinaria de Fundamentos de Economía y Empresa para alumnos sin trabajo grupal?,"- Prueba global (90% de la calificación final) con contenidos teórico-prácticos de toda la asignatura.
+- Proyecto individual en formato audiovisual sobre un caso empresarial propuesto (10% de la calificación final).",Consta de una prueba global con contenidos teórico-prácticos (90%) y un proyecto individual audiovisual sobre un caso empresarial (10%).,0.1912330160465971,0.7782747555474829,0.5714285714285714
+15,¿Qué normativa especial se aplica a los alumnos Erasmus OUT en Calidad del Software para la defensa del trabajo?,"- La defensa oral del trabajo final para estudiantes Erasmus OUT podrá realizarse de forma telemática, siendo esta la única excepción permitida para realizar la defensa de manera virtual.","Se permite realizar la defensa oral del trabajo final por medios telemáticos, siendo esta la única causa que justifica la defensa virtual.",0.2796731342078355,0.637889043522267,0.5283018867924527
+16,¿Con qué Objetivos de Desarrollo Sostenible (ODS) se relaciona la asignatura Contaminación de Suelos y Aguas Subterráneas?,"- ODS6: Garantizar la disponibilidad y la gestión sostenible del agua y el saneamiento para todos.
+- ODS9: Desarrollar infraestructuras resilientes, promover la industrialización inclusiva y sostenible, y fomentar la innovación.
+- ODS13: Acción por el clima.
+- ODS14: Conservación y uso sostenible de los océanos y recursos marinos.
+- ODS15: Vida de ecosistemas terrestres.",Se relaciona con el ODS 3 (Salud y Bienestar) y el ODS 6 (Agua Limpia y Saneamiento).,0.0,0.15094339622641512,0.136986301369863
+17,¿Qué temas de diseño se ven en el temario de Programación Orientada a Objetos?,"- Principios de diseño
+- Patrones de diseño
+- Metodologías de diseño
+- Diseño orientado a objetos avanzado","Principios de diseño, patrones de diseño, metodologías de diseño y diseño orientado a objetos avanzado.",0.23682079130839756,0.7687074829931974,0.9743589743589743
+18,¿Qué actividades opcionales existen en Fundamentos de Ingeniería del Software para sumar puntos extra?,"- Las actividades opcionales para sumar puntos extra son:
+  - Actividades presenciales y no recuperables (ejemplo: test o encuestas relacionadas con las actividades principales).
+  - Al menos una actividad que añade **0,2 décimas** a la **Nota de Teoría (NT)**.
+  - Al menos una actividad que añade **0,2 décimas** a la **Nota de Prácticas (NP)**.
+
+*Nota: La repercusión exacta de cada actividad se indicará durante el curso.*","Actividades presenciales como test o encuestas que suman 0,2 décimas adicionales sobre la nota de teoría y 0,2 sobre la nota de prácticas.",0.0,0.4257785880541274,0.4444444444444445
+19,¿Cuál es el resultado de aprendizaje RA7 en Fundamentos de Economía y Empresa?,Comprende y es capaz de interpretar las cuentas anuales de una empresa.,Comprende y es capaz de interpretar las cuentas anuales de una empresa.,1.0,0.9997724169321802,1.0
+20,¿Qué subtemas se tratan en el bloque de Técnicas de la Calidad en Calidad del Software?,"- Técnicas básicas.
+- Técnicas estadísticas.
+- Técnicas avanzadas.","Técnicas básicas, técnicas estadísticas y técnicas avanzadas.",0.0,0.7230634189159536,0.9565217391304348
+21,¿Cuántos créditos ECTS tiene la asignatura Instalaciones de Riego I?,2 ECTS.,Tiene una carga de 2 créditos ECTS.,0.0,0.3407407407407408,0.4
+22,¿Quién es el coordinador de la asignatura Instalaciones de Riego I?,"Lo siento, esa información específica no consta en la guía docente actual.",El coordinador es Ruben Moratiel Yugueros.,0.0,0.06493506493506494,0.0
+23,¿Qué peso tiene el informe técnico en la nota final de la evaluación progresiva de Riego I?,"Lo siento, esa información específica no consta en la guía docente actual.",El informe técnico tiene un peso del 80% en la nota final.,0.0,0.18253968253968256,0.14285714285714288
+24,¿Con qué Objetivos de Desarrollo Sostenible (ODS) se relaciona la asignatura de Riego I según su guía?,"Lo siento, esa información específica no consta en la guía docente actual.",Se relaciona con el ODS 11 (Ciudades y comunidades sostenibles) y el ODS 3 (Salud y Bienestar).,0.0,0.02358490566037736,0.0
+25,¿Qué asignatura previa se recomienda haber cursado para Sistemas de Control Discreto?,"- Sistemas Electronicos Aeroespaciales
+- Sistemas de Control Automático",Se recomienda haber cursado Sistemas Electrónicos Aeroespaciales.,0.0,0.1234567901234568,0.25
+26,¿Cuál es el carácter de la asignatura Sistemas de Control Discreto?,La asignatura tiene carácter teórico-práctico.,Es una asignatura de carácter optativo.,0.0,0.21739130434782605,0.375
+27,¿Qué duración tiene el examen de evaluación progresiva y global de Sistemas de Control Discreto?,Duración: 04:00 horas.,Tiene una duración de 04:00 horas.,0.461999336994571,0.551470588235294,0.7692307692307693
+28,¿Qué capacidad adquiere el alumno según el resultado de aprendizaje RA131 en Sistemas de Control Discreto?,- Capacidad de analizar la estabilidad de un sistema de vuelo.,El alumno posee la capacidad de analizar la estabilidad de un sistema de vuelo.,0.6285356325536535,0.7480182155506832,0.8333333333333333
+29,¿En qué idiomas se imparte la asignatura Análisis Dinámico y Sísmico de Estructuras?,"Lo siento, esa información específica no consta en la guía docente actual.",Se imparte en Inglés y Castellano.,0.0,0.12987012987012989,0.09090909090909091
+30,¿Cuál es la asignatura previa recomendada para cursar Análisis Dinámico y Sísmico de Estructuras?,- Elementos Finitos,Se recomienda haber cursado Elementos Finitos.,0.0,0.2840909090909091,0.5
+31,¿Qué peso tiene el examen final (EM2) en la nota final de Análisis Dinámico y Sísmico de Estructuras?,El examen final (EM2) tiene un peso del **60%** en la nota final.,El examen final tiene un peso del 60% en la calificación final.,0.2158836734667192,0.8591957493056395,0.8461538461538461
+32,¿Qué habilidades de programación se recomiendan para la asignatura de Análisis Dinámico y Sísmico de Estructuras?,- MATLAB programming skills.,Se recomiendan habilidades de programación en MATLAB.,0.0,0.12987012987012989,0.18181818181818182
+33,¿Qué dos enfoques se utilizan en Metodologías de Desarrollo Web para abordar la gestión de proyectos?,"- Enfoque pesado/tradicional
+- Enfoque ligero/ágil",Se aborda desde dos enfoques: pesado/tradicional y ligero/ágil.,0.0,0.15625,0.5
+34,¿Cuál es el porcentaje mínimo de asistencia y participación activa requerido para la evaluación continua en Metodologías de Desarrollo Web?,- **70% de asistencia y participación activa en clases** para optar a la evaluación continua.,Es necesario asistir y participar activamente en al menos el 70% de las clases.,0.0,0.38257575757575757,0.19999999999999998
+35,¿Qué peso tiene el 'Test' en la evaluación progresiva de Metodologías de Desarrollo Web?,"Lo siento, esa información específica no consta en la guía docente actual.",El test tiene un peso del 15% en la nota final.,0.0,0.1950805767599661,0.15384615384615383
+36,¿Qué nota mínima se exige en cada una de las dos prácticas obligatorias para poder promediar en Metodologías de Desarrollo Web?,- Mínimo del 30% de la nota en cada una de las dos prácticas obligatorias.,Es obligatorio obtener al menos un 30% de la nota (3/10) en cada práctica.,0.2134103893035375,0.4283054003724395,0.4375
+37,¿Cuál es el carácter de la asignatura Álgebra en el Grado en Ingeniería del Software?,Básica.,Es una asignatura de carácter básico.,0.0,0.07692307692307691,0.2
+38,¿Cómo se calcula la nota del examen (EX) en la evaluación progresiva de Álgebra?,"Lo siento, esa información específica no consta en la guía docente actual.",Se calcula mediante la fórmula EX = 20%EP1 + 20%EP2 + 60%EP3.,0.0,0.05405405405405406,0.07142857142857144
+39,¿Qué algoritmo se estudia específicamente en el tema 5.2 de la asignatura Álgebra?,- Algoritmo de Ortogonalización de Gram-Schmidt.,Se estudia el algoritmo de ortogonalización de Gram-Schmidt.,0.0,0.6802398989898991,0.8235294117647058
+40,¿Cómo es la planificación descrita en el cronograma de Álgebra en cuanto a la presencialidad?,"La planificación del cronograma está diseñada para ser **100% presencial**.
+
+En caso de recidivas de la epidemia de COVID, todas las actividades formativas inicialmente presenciales pasarían a impartirse **online** a través de plataformas digitales.",La planificación está diseñada para ser 100% presencial.,0.08233704128013336,0.6893382352941178,0.4166666666666667
