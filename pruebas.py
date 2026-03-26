@@ -11,15 +11,11 @@ import time
 import pandas as pd
 import numpy as np
 import evaluate
-from app import CONFIG, connect_to_elastic, load_embedding_model, get_llm_provider, search_retriever, build_rag_prompt
+from app import CONFIG, connect_to_elastic, load_embedding_model, get_llm_provider, load_reranker_model, search_retriever, build_rag_prompt
 
 ##########################
 ## 1. CARGA DE MÉTRICAS ##
 ##########################
-
-bleu = evaluate.load("bleu")
-meteor = evaluate.load("meteor")
-rouge = evaluate.load("rouge")
 
 output_csv = CONFIG["eval"]["output_csv"]
 dataset_path = CONFIG["eval"]["dataset_path"]
@@ -32,6 +28,11 @@ def run_quality_test(dataset_path):
         dataset_path (str): Ruta al archivo JSON con preguntas y referencias.
     """
     # Inicialización de componentes.
+    
+    bleu = evaluate.load("bleu")
+    meteor = evaluate.load("meteor")
+    rouge = evaluate.load("rouge")
+
     es_client = connect_to_elastic()
     embed_model = load_embedding_model()
     llm_engine = get_llm_provider()

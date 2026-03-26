@@ -32,7 +32,6 @@ except FileNotFoundError:
 # Variables de entorno extraídas de la configuración centralizada.
 INDEX_NAME = CONFIG["elastic"]["index_name"]
 MODEL_NAME = CONFIG["embeddings"]["model_name"]
-RERANKER_MODEL = CrossEncoder(CONFIG["reranker"]["model_name"])
 
 #######################################
 ## 1. DEFINICIÓN INTERFAZ ABSTRACTA ##
@@ -298,6 +297,23 @@ def load_embedding_model():
     except Exception as e:
         print(f"Error al cargar modelo: {e}")
         return None
+    
+def load_reranker_model():
+    """
+    Carga el modelo Cross-Encoder para el reranking de documentos.
+
+    Returns:
+        CrossEncoder: El modelo de reranking cargado.
+        None: Si ocurre un error durante la carga.
+    """
+    print(f"Cargando modelo de reranking...")
+    RERANKER_MODEL = CrossEncoder(CONFIG["reranker"]["model_name"])
+
+    try:
+        return RERANKER_MODEL
+    except Exception as e:
+        print(f"Error al cargar modelo de reranking: {e}")
+        return None
 
 def search_retriever(client, model, original_query, rewritten_query, top_k=10):
     """
@@ -352,7 +368,7 @@ def search_retriever(client, model, original_query, rewritten_query, top_k=10):
         # Mejora Reranking
         documents = [hit['_source'] for hit in hits]
         pairs = [[original_query, doc['chunk_text']] for doc in documents]
-        scores = RERANKER_MODEL.predict(pairs)
+        scores = load_reranker_model().predict(pairs)
 
         for i, score in enumerate(scores):
             documents[i]['rerank_score'] = score
@@ -413,8 +429,6 @@ def build_rag_prompt(query, context_chunks):
     """
     context = "\n\n".join(context_chunks)
     return f"""
-    Eres el Asistente Oficial de Guías Docentes de la UPM. Tu misión es responder a las dudas de los alumnos de forma clara y directa.
-
     INSTRUCCIONES DE PROCESAMIENTO:
     1. El contexto está dividido en bloques con etiquetas jerárquicas. Ejemplo: [Asignatura: Nombre] [X. Sección > X.Y. Subsección].
     2. Usa estas etiquetas INTERNAMENTE para asegurar que la información corresponde a la asignatura de la pregunta, pero ESTÁ ESTRICTAMENTE PROHIBIDO incluir la etiqueta [Asignatura: X], mencionar el nombre de la asignatura, o mencionar las secciones jerárquicas en tu respuesta.

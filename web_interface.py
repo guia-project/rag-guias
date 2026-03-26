@@ -111,7 +111,7 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-        if "sources" in message:
+        if message.get("sources"):
             with st.expander("Fuentes consultadas"):
                 for source in message["sources"]:
                     st.markdown(f"- [{source}]({source})")
