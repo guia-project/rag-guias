@@ -1,0 +1,47 @@
+{
+  "active_llm": "mistral",
+
+  "show_llm_selector": true,
+
+  "eval": {
+    "dataset_path": "eval_dataset.json",
+    "output_csv": "eval_results.csv"
+  },
+
+  "llm_options": {
+    "mistral": {
+      "model": "mistral-small-2409",
+      "api_key": "TU_KEY_AQUI"
+    },
+    "groq": {
+      "model": "llama-3.1-8b-instant",
+      "api_key": "TU_KEY_AQUI"
+    },
+    "ollama": {
+      "model": "gemma:2b",
+      "api_url": "http://ollama:11434/api/generate"
+    }
+  },
+
+  "elastic": {
+    "host": "elasticsearch",
+    "port": 9200,
+    "scheme": "http",
+    "index_name": "guias_docentes"
+  },
+  
+  "ckan": {
+    "api_url": "https://portal.guia.linkeddata.es/api/3/action/resource_search", 
+    "query": "mimetype:application/pdf"
+  },
+
+  "embeddings": {
+    "model_name": "intfloat/multilingual-e5-small",
+    "dim": 384
+  },
+
+  "reranker": {
+    "model_name": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+  }
+
+}
