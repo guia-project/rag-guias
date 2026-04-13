@@ -121,7 +121,7 @@ def convert_pdf_to_markdown(pdf_content_bytes):
         str: Texto convertido a Markdown.
         None: Si la conversión falla.
     """
-    md_converter = MarkItDown(enable_plugins=False)
+    md_converter = MarkItDown()
     try:
         with io.BytesIO(pdf_content_bytes) as f:
             result = md_converter.convert_stream(f)

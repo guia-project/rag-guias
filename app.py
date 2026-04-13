@@ -15,7 +15,8 @@ from abc import ABC, abstractmethod
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
 from sentence_transformers import CrossEncoder
-from mistralai.client import Mistral
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 from groq import Groq
 from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -75,7 +76,7 @@ class MistralProvider(LLMProvider):
         """
         self.api_key = api_key
         self.model_name = model_name
-        self.client = Mistral(api_key=self.api_key)
+        self.client = MistralClient(api_key=self.api_key)
 
     def generate(self, prompt: str, system_prompt: str = None) -> str:
         """
@@ -94,11 +95,11 @@ class MistralProvider(LLMProvider):
             try:
                 sys_instr = system_prompt if system_prompt else DEFAULT_SYS_PROMPT
                     
-                response = self.client.chat.complete(
+                response = self.client.chat(
                     model=self.model_name,
                     messages=[
-                        {"role": "system", "content": sys_instr},
-                        {"role": "user", "content": prompt}
+                        ChatMessage(role="system", content=sys_instr),
+                        ChatMessage(role="user", content=prompt)
                     ],
                     temperature=0.0
                 )
@@ -274,7 +275,7 @@ def connect_to_elastic():
         client = Elasticsearch(
             [{"host": conf["host"], "port": conf["port"], "scheme": conf["scheme"]}],
             verify_certs=False, 
-            request_timeout=10 
+            request_timeout=60 
         )
         if client.ping():
             print("¡Conexión con Elasticsearch exitosa!")

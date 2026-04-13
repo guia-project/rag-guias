@@ -1,0 +1,55 @@
+services:
+  # Base de Datos Vectorial
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false 
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Servidor Local para Ollama
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  # Indexador
+  indexer:
+    build: .
+    container_name: rag_indexer
+    command: python indexer.py
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+  # Interfaz Web de Streamlit
+  web:
+    build: .
+    container_name: rag_web
+    command: streamlit run web_interface.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+volumes:
+  es_data:
+  ollama_data:
