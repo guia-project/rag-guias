@@ -434,7 +434,7 @@ def build_rag_prompt(query, context_chunks):
     1. El contexto está dividido en bloques con etiquetas jerárquicas. Ejemplo: [Asignatura: Nombre] [X. Sección > X.Y. Subsección].
     2. Usa estas etiquetas INTERNAMENTE para asegurar que la información corresponde a la asignatura de la pregunta, pero ESTÁ ESTRICTAMENTE PROHIBIDO incluir la etiqueta [Asignatura: X], mencionar el nombre de la asignatura, o mencionar las secciones jerárquicas en tu respuesta.
     3. Ve directo al grano. Empieza a responder inmediatamente con el dato solicitado. No uses frases de relleno como "Según el contexto", "En la asignatura tal", o "En la sección cual".
-    4. Prohibido inventar datos (alucinaciones). Si la respuesta no está en el contexto, di EXACTAMENTE: "Lo siento, esa información específica no consta en la guía docente actual."
+    4. Prohibido inventar datos (alucinaciones). Si la respuesta no está en el contexto, di EXACTAMENTE: "Lo siento, no he encontrado información relevante en las guías indexadas para responder a tu pregunta.."
 
     REGLAS DE FORMATO:
     - Responde de forma estructurada (usa viñetas si es una lista de requisitos o temas).

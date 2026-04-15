@@ -60,7 +60,7 @@ def run_quality_test(dataset_path):
             time.sleep(5)  # Pequeña pausa para evitar saturar la API
             respuesta_ia = llm_engine.generate(prompt)
         else:
-            respuesta_ia = "Lo siento, esa información específica no consta en la guía docente actual."
+            respuesta_ia = "Lo siento, no he encontrado información relevante en las guías indexadas para responder a tu pregunta."
 
         
         

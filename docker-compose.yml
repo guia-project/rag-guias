@@ -40,7 +40,7 @@ services:
   # Interfaz Web de Streamlit
   web:
     build: .
-    container_name: rag_web
+    container_name: rag_web_chatbot
     command: streamlit run web_interface.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "8501:8501"
