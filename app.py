@@ -84,6 +84,7 @@ class MistralProvider(LLMProvider):
 
         Args:
             prompt (str): Texto que combina contexto y pregunta del usuario.
+            system_prompt (str, opcional): Instrucciones de comportamiento para el modelo.
 
         Returns:
             str: Texto generado por el modelo o mensaje de error.
@@ -133,6 +134,7 @@ class GroqProvider(LLMProvider):
 
         Args:
             prompt (str): Entrada estructurada para el modelo.
+            system_prompt (str, opcional): Instrucciones de comportamiento para el modelo.
 
         Returns:
             str: Contenido del mensaje de respuesta generado.
@@ -181,6 +183,7 @@ class OllamaProvider(LLMProvider):
 
         Args:
             prompt (str): Texto de entrada.
+            system_prompt (str, opcional): Instrucciones de comportamiento para el modelo.
 
         Returns:
             str: Respuesta generada por el modelo local.
@@ -318,15 +321,14 @@ def load_reranker_model():
 
 def search_retriever(client, model, reranker_model, original_query, rewritten_query, top_k=10):
     """
-    Ejecuta un proceso de recuperación avanzado en dos pasos: 
-    1) Búsqueda Híbrida (combinando k-NN vectorial y coincidencia de texto BM25) para obtener candidatos 
-    2) Reranking mediante un modelo Cross-Encoder para reordenar los resultados por su relevancia semántica 
-    específica respecto a la consulta.
+    Realiza una búsqueda híbrida en Elasticsearch (Semántica + Palabras Clave) y aplica Reranking.
 
     Args:
         client (Elasticsearch): Cliente de la base de datos.
-        model (SentenceTransformer): Modelo para vectorizar la consulta.
-        query_text (str): La pregunta del usuario.
+        model (HuggingFaceEmbeddings): Modelo para vectorizar la consulta.
+        reranker (CrossEncoder): Modelo para re-evaluar la relevancia de los resultados.
+        original_query (str): La pregunta del usuario.
+        rewritten_query (str): Palabras clave extraídas para mejorar la precisión.
         top_k (int): Número de fragmentos a recuperar.
 
     Returns:
@@ -424,7 +426,7 @@ def build_rag_prompt(query, context_chunks):
     Instruye al modelo para interpretar etiquetas jerárquicas y mitigar alucinaciones mediante el uso estricto de la información proporcionada.
     Args:
         query (str): La pregunta original del usuario.
-        context_chunks (list[str]): Lista de Parent Documents (secciones enriquecidas con jerarquía) obtenidos tras el proceso de Reranking.
+        context_chunks (list[str]): Lista de fragmentos de texto recuperados de la base de datos.
     Returns:
         str: Prompt estructurado listo para ser enviado al LLM.
     """
