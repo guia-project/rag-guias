@@ -23,6 +23,12 @@ dataset_path = CONFIG["eval"]["dataset_path"]
 def run_quality_test(dataset_path):
     """
     Ejecuta el pipeline RAG sobre un dataset y calcula métricas de calidad.
+
+    El proceso consiste en:
+    1. Cargar el dataset (Pregunta + Referencia Humana).
+    2. Generar respuesta mediante el motor RAG (incluyendo Query Rewriting y Reranking).
+    3. Comparar matemáticamente la respuesta de la IA con la humana usando BLEU, METEOR y ROUGE.
+    4. Exportar resultados detallados a CSV y mostrar un resumen estadístico.
     
     Args:
         dataset_path (str): Ruta al archivo JSON con preguntas y referencias.
@@ -58,7 +64,6 @@ def run_quality_test(dataset_path):
 
         if chunks:
             prompt = build_rag_prompt(pregunta, chunks)
-            time.sleep(5)  # Pequeña pausa para evitar saturar la API
             respuesta_ia = llm_engine.generate(prompt)
         else:
             respuesta_ia = "Lo siento, no he encontrado información relevante en las guías indexadas para responder a tu pregunta."
