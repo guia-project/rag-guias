@@ -1,0 +1,16 @@
+[theme]
+# El azul corporativo de la UPM (Pantone 285)
+primaryColor = "#0072CE"
+
+# Color de fondo principal de la aplicación (Blanco puro)
+backgroundColor = "#FFFFFF"
+
+# Color de fondo secundario (Usado para la barra lateral y widgets)
+# Usamos un gris muy tenue para que no compita con el azul
+secondaryBackgroundColor = "#F0F2F6"
+
+# Color del texto principal
+textColor = "#262730"
+
+# Tipografía (Streamlit permite "sans serif", "serif" o "monospace")
+font = "sans serif"
