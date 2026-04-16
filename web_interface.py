@@ -11,6 +11,7 @@ import streamlit as st
 from app import (
     connect_to_elastic, 
     load_embedding_model, 
+    load_reranker_model,
     get_llm_provider, 
     search_retriever, 
     build_rag_prompt,
@@ -68,7 +69,8 @@ def load_infrastructure():
     #            Elasticsearch y embedding_model es el modelo SentenceTransformer.
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
-    return es_client, embedding_model
+    reranker_model = load_reranker_model()
+    return es_client, embedding_model, reranker_model
 
 
 @st.cache_resource
@@ -91,11 +93,11 @@ def load_llm_engine(provider_name):
         return None
 
 # Inicialización de recursos globales
-es_client, embedding_model = load_infrastructure()
+es_client, embedding_model, reranker_model = load_infrastructure()
 llm_engine = load_llm_engine(selected_llm)
 
 # Verificación de integridad del sistema
-if not es_client or not embedding_model or not llm_engine:
+if not es_client or not embedding_model or not llm_engine or not reranker_model:
     st.error("Error crítico de conexión. Revisa la terminal.")
     st.stop()
 ##############################################
@@ -148,6 +150,7 @@ if prompt := st.chat_input("Pregunta sobre una asignatura..."):
                 chunks, sources = search_retriever(
                     es_client, 
                     embedding_model, 
+                    reranker_model,
                     prompt,
                     rewritten_query, 
                     top_k=10 

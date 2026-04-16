@@ -69,7 +69,7 @@ def create_index_mapping(client):
     Crea el índice en Elasticsearch con un mapeo específico para búsqueda vectorial.
 
     Define campos para metadatos (IDs, URLs) y el campo 'embedding_vector' 
-    de tipo 'dense_vector' para almacenar los vectores del modelo SentenceTransformer.
+    de tipo 'dense_vector' para almacenar los vectores generados por el modelo de HuggingFace.
 
     Args:
         client (Elasticsearch): El cliente de conexión activo.
@@ -141,6 +141,7 @@ def get_chunks_from_markdown(markdown_content, semantic_chunker, recursive_chunk
         markdown_content (str): Contenido en Markdown
         semantic_chunker (SemanticChunker): Instancia para división temática.
         recursive_chunker (RecursiveCharacterTextSplitter): Instancia para refinamiento por tamaño.
+        doc_name (str): Nombre o título de la asignatura para inyectarlo como contexto en cada fragmento.
 
     Returns:
         list[dict]: Lista de diccionarios, donde cada uno contiene search_text (hijo para búsqueda) 
@@ -250,7 +251,8 @@ def process_and_index_document(client, model, resource, semantic_chunker, recurs
         client (Elasticsearch): Cliente de base de datos.
         model (HuggingFaceEmbeddings): Modelo para vectorizar.
         resource (dict): Metadatos del recurso de CKAN.
-        semantic_chunker/recursive_chunker: Objetos de segmentación.
+        semantic_chunker (SemanticChunker): Objeto configurado para la segmentación semántica.
+        recursive_chunker (RecursiveCharacterTextSplitter): Objeto configurado para la segmentación recursiva.
     """
     doc_id = resource['id']
     doc_url = resource['url']
@@ -318,7 +320,9 @@ def run_sync_job(client, model, semantic_chunker, recursive_chunker):
 
     Args:
         client (Elasticsearch): Cliente de conexión.
-        model (SentenceTransformer): Modelo para generar embeddings.
+        model (HuggingFaceEmbeddings): Modelo para generar embeddings.
+        semantic_chunker (SemanticChunker): Herramienta de segmentación semántica inicializada.
+        recursive_chunker (RecursiveCharacterTextSplitter): Herramienta de segmentación recursiva inicializada.
     """
     
     ckan_resources = fetch_ckan_resources()

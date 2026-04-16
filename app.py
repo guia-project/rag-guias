@@ -316,7 +316,7 @@ def load_reranker_model():
         print(f"Error al cargar modelo de reranking: {e}")
         return None
 
-def search_retriever(client, model, original_query, rewritten_query, top_k=10):
+def search_retriever(client, model, reranker_model, original_query, rewritten_query, top_k=10):
     """
     Ejecuta un proceso de recuperación avanzado en dos pasos: 
     1) Búsqueda Híbrida (combinando k-NN vectorial y coincidencia de texto BM25) para obtener candidatos 
@@ -369,7 +369,7 @@ def search_retriever(client, model, original_query, rewritten_query, top_k=10):
         # Mejora Reranking
         documents = [hit['_source'] for hit in hits]
         pairs = [[original_query, doc['chunk_text']] for doc in documents]
-        scores = load_reranker_model().predict(pairs)
+        scores = reranker_model.predict(pairs)
 
         for i, score in enumerate(scores):
             documents[i]['rerank_score'] = score
@@ -436,9 +436,6 @@ def build_rag_prompt(query, context_chunks):
     3. Ve directo al grano. Empieza a responder inmediatamente con el dato solicitado. No uses frases de relleno como "Según el contexto", "En la asignatura tal", o "En la sección cual".
     4. Prohibido inventar datos (alucinaciones). Si la respuesta no está en el contexto, di EXACTAMENTE: "Lo siento, no he encontrado información relevante en las guías indexadas para responder a tu pregunta.."
 
-    REGLAS DE FORMATO:
-    - Responde de forma estructurada (usa viñetas si es una lista de requisitos o temas).
-    - Sé muy conciso. Da solo el dato o explicación que pide el alumno.
 
     CONTEXTO RECUPERADO:
     {context}

@@ -35,6 +35,7 @@ def run_quality_test(dataset_path):
 
     es_client = connect_to_elastic()
     embed_model = load_embedding_model()
+    reranker_model = load_reranker_model()
     llm_engine = get_llm_provider()
     
     with open(dataset_path, 'r', encoding='utf-8') as f:
@@ -53,7 +54,7 @@ def run_quality_test(dataset_path):
         rewritten_query = llm_engine.generate(pregunta, system_prompt=rewrite_prompt).strip()
         
         # Flujo RAG (Retrieval + Generation)
-        chunks, _ = search_retriever(es_client, embed_model, pregunta, rewritten_query, top_k=10)
+        chunks, _ = search_retriever(es_client, embed_model, reranker_model, pregunta, rewritten_query, top_k=10)
 
         if chunks:
             prompt = build_rag_prompt(pregunta, chunks)
