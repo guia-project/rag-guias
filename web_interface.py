@@ -29,6 +29,7 @@ st.set_page_config(
     layout="centered"
 )
 
+# st.markdown con 'unsafe_allow_html=True' permite inyectar código CSS y HTML personalizado para mejorar la UX.
 st.markdown("""
 <style>
     /* Transición para logo y info. personal */
@@ -87,12 +88,12 @@ st.markdown("""
         background-color: #0072CE;
         color: white;
         padding: 10px 20px;
-        border-radius: 25px; /* Bordes redondeados */
+        border-radius: 25px; 
         font-family: sans-serif;
         font-size: 14px;
         font-weight: bold;
         cursor: pointer;
-        z-index: 9999; /* Asegura que esté por encima de todo */
+        z-index: 9999; 
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         transition: background-color 0.3s;
     }
@@ -113,7 +114,7 @@ st.markdown("""
         padding: 15px;
         position: absolute;
         z-index: 1;
-        bottom: 130%; /* Lo posiciona justo encima del botón */
+        bottom: 130%;
         right: 0;
         opacity: 0;
         transition: opacity 0.3s;
@@ -134,14 +135,14 @@ st.markdown("""
         bottom: 20px;
         left: 20px;
         font-family: sans-serif;
-        font-size: 12px; /* Un pelín más grande para que el logo respire */
+        font-size: 12px;
         color: #FFFFFF;
         z-index: 9999;
         background-color: #0072CE; 
         padding: 6px 12px;
         border-radius: 10px;
         
-        /* Flexbox para alinear el texto "Hecho por" con el enlace */
+        /* Alinear el texto "Hecho por" con el enlace */
         display: flex;
         align-items: center;
         gap: 6px; 
@@ -156,7 +157,7 @@ st.markdown("""
         font-weight: bold;
         display: flex;
         align-items: center;
-        gap: 5px; /* Espacio entre el logo y tu nombre */
+        gap: 5px;
     }
     
     .footer-left a:hover {
@@ -232,8 +233,9 @@ def load_infrastructure():
     # en memoria para evitar recargas costosas en cada interacción de Streamlit.
     # 
     # Returns:
-    #     tuple: (es_client, embedding_model) donde es_client es la instancia de 
-    #            Elasticsearch y embedding_model es el modelo SentenceTransformer.
+    #     tuple: (es_client, embedding_model, reranker_model) donde es_client es la instancia 
+    #     de Elasticsearch, embedding_model es el modelo de HuggingFace y 
+    #     reranker_model es el modelo CrossEncoder.
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
     reranker_model = load_reranker_model()
@@ -267,6 +269,7 @@ llm_engine = load_llm_engine(selected_llm)
 if not es_client or not embedding_model or not llm_engine or not reranker_model:
     st.error("Error crítico de conexión. Revisa la terminal.")
     st.stop()
+    
 ##############################################
 ## 3. GESTIÓN DEL HISTORIAL (SESSION STATE) ##
 ##############################################
