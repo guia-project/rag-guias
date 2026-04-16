@@ -17,7 +17,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiamos el código fuente de la aplicación
-COPY . .
+COPY src/ .
 
 # Exponemos el puerto estándar de Streamlit
 EXPOSE 8501

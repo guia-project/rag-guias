@@ -456,6 +456,7 @@ if __name__ == "__main__":
     """
     es_client = connect_to_elastic()
     embedding_model = load_embedding_model()
+    reranker_model = load_reranker_model()
     
     try:
         llm_engine = get_llm_provider()
@@ -481,7 +482,7 @@ if __name__ == "__main__":
             print(f"[Keywords extraídas]: {rewritten_query.strip()}")
 
             print("... recuperando contexto ...")
-            chunks, sources = search_retriever(es_client, embedding_model, user_query, rewritten_query.strip(), top_k=10)
+            chunks, sources = search_retriever(es_client, embedding_model, reranker_model, user_query, rewritten_query.strip(), top_k=10)
             
             if not chunks:
                 print("No se encontró información relevante.")

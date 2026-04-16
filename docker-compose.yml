@@ -28,19 +28,25 @@ services:
 
   # Indexador
   indexer:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     container_name: rag_indexer
     command: python indexer.py
     depends_on:
       elasticsearch:
         condition: service_healthy
     volumes:
-      - .:/app
+      - ./src:/app
+      - ./config/config.json:/app/config.json
+      - ./data:/app/data
       - hf_cache:/root/.cache/huggingface
 
   # Interfaz Web de Streamlit
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     container_name: rag_web_chatbot
     command: streamlit run web_interface.py --server.port=8501 --server.address=0.0.0.0
     ports:
@@ -50,6 +56,9 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
+      - ./src:/app
+      - ./config/config.json:/app/config.json
+      - ./data:/app/data
       - hf_cache:/root/.cache/huggingface
 
 volumes:
