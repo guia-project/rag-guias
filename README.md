@@ -31,7 +31,7 @@ El sistema sigue una arquitectura de diseño modular para facilitar el mantenimi
     │   └── pruebas.py          # Banco de pruebas de calidad
     ├── .gitignore              # Archivos excluidos del control de versiones
     ├── docker-compose.yml      # Orquestación de microservicios
-    ├── README.md           # Guía de uso y documentación técnica principal
+    ├── README.md               # Guía de uso y documentación técnica principal
     └── requirements.txt        # Dependencias del sistema
 
 ## Instalación y Despliegue
