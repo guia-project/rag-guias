@@ -47,7 +47,9 @@ El sistema sigue una arquitectura de diseño modular para facilitar el mantenimi
 2. **Configurar credenciales**
 
     Crea en la carpeta `config/` el archivo `config/config.json` con tus API Keys si vas a usar groq o mistral.
-3. **Lanzar el sistema**
+   * Para configurar la API Key de Groq: https://console.groq.com/keys
+   * Para configurar la API Key de Mistral: https://admin.mistral.ai/organization/api-keys
+4. **Lanzar el sistema**
 
         docker compose up -d --build
     El asistente estará disponible en: http://localhost:8501
