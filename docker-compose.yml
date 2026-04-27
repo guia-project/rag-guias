@@ -25,6 +25,22 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+  
+  # Ayudante para descargar el modelo automáticamente
+  ollama-pull-model:
+    image: curlimages/curl:latest
+    container_name: ollama_pull_model
+    depends_on:
+      ollama:
+        condition: service_healthy
+    command: >
+      curl http://ollama:11434/api/pull -d '{"name": "gemma:2b"}'
 
   # Indexador
   indexer:
@@ -37,7 +53,6 @@ services:
       elasticsearch:
         condition: service_healthy
     volumes:
-      - ./src:/app
       - ./config/config.json:/app/config.json
       - ./data:/app/data
       - hf_cache:/root/.cache/huggingface
@@ -55,8 +70,6 @@ services:
       elasticsearch:
         condition: service_healthy
     volumes:
-      - .:/app
-      - ./src:/app
       - ./config/config.json:/app/config.json
       - ./data:/app/data
       - hf_cache:/root/.cache/huggingface

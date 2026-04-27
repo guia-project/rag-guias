@@ -15,5 +15,3 @@ __pycache__/
 
 config/config.json
 
-# Comprobación de los documentos en la base de datos
-check_db.py
