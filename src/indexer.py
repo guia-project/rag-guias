@@ -55,7 +55,9 @@ def connect_to_elastic():
         client = Elasticsearch(
             [{"host": ELASTIC_CONFIG["host"], "port": ELASTIC_CONFIG["port"], "scheme": ELASTIC_CONFIG["scheme"]}],
             verify_certs=False,
-            request_timeout=60 
+            request_timeout=60,
+            max_retries = 3,
+            retry_on_timeout=False
         )
         info = client.info()
         print("Conexión con Elasticsearch exitosa")
