@@ -6,7 +6,6 @@
 
 # Librerías
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 # Importamos funciones y clases desde app.py para mantener la lógica de negocio separada de la interfaz.
