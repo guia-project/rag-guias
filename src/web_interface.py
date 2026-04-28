@@ -6,6 +6,8 @@
 
 # Librerías
 import streamlit as st
+import streamlit.components.v1 as components
+
 
 # Importamos funciones y clases desde app.py para mantener la lógica de negocio separada de la interfaz.
 from app import (
@@ -88,24 +90,23 @@ st.markdown("""
         background-color: #0072CE;
         color: white;
         padding: 10px 20px;
-        border-radius: 25px; 
+        border-radius: 25px;
         font-family: sans-serif;
         font-size: 14px;
         font-weight: bold;
         cursor: pointer;
-        z-index: 9999; 
+        z-index: 9999;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         transition: background-color 0.3s;
     }
-
-    /* Efecto al pasar el ratón por el botón */
+ 
     .floating-about:hover {
-        background-color: #00569B; /* Un azul un poco más oscuro */
+        background-color: #00569B;
     }
-
-    /* Estilo de la caja de texto oculta */
+ 
     .about-tooltip {
         visibility: hidden;
+        opacity: 0;
         width: 250px;
         background-color: #FFFFFF;
         color: #262730;
@@ -113,22 +114,38 @@ st.markdown("""
         border-radius: 8px;
         padding: 15px;
         position: absolute;
-        z-index: 1;
-        bottom: 130%;
+        z-index: 10000;
+        bottom: calc(100% + 10px);
         right: 0;
-        opacity: 0;
-        transition: opacity 0.3s;
         box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
         border: 1px solid #E0E0E0;
         font-weight: normal;
+        transition: opacity 0.15s, visibility 0.15s;
     }
-
-    /* Muestra la caja de texto al pasar el ratón */
-    .floating-about:hover .about-tooltip {
+ 
+    /* Puente invisible que conecta el botón con el tooltip */
+    .floating-about::before {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        width: 100%;
+        height: 15px;
+    }
+ 
+    .floating-about:hover .about-tooltip,
+    .floating-about:hover::before,
+    .about-tooltip:hover {
         visibility: visible;
         opacity: 1;
     }
-
+ 
+    .floating-about:has(.about-tooltip:hover) .about-tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+          
+            
     /* Estilo de la info.personal */        
     .footer-left {
         position: fixed;
@@ -184,15 +201,17 @@ st.markdown("""
         </svg>
     </a>
 </div>
-
+            
 <div class="floating-about">
     About
     <div class="about-tooltip">
         <b>Asistente de Guías Docentes UPM</b><br><br>
-        Esta herramienta nace como solución a la imposibilidad de hacer consultas, pues las guías están en PDFs estáticos.<br><br>
+        Esta herramienta forma parte del ecosistema del proyecto
+        <a href="https://guia-project.github.io/" target="_blank" style="color:#0072CE;">GUIA (M230020126A-AJCA)</a><br><br>
         <i>Versión 1.0</i>
     </div>
 </div>
+
 """, 
 unsafe_allow_html=True)
 
