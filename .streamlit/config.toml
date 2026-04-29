@@ -1,4 +1,5 @@
 [theme]
+basee = "light"
 # El azul corporativo de la UPM (Pantone 285)
 primaryColor = "#0072CE"
 
